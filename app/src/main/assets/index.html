@@ -3,10 +3,12 @@
 
 <head>
     <meta charset="utf-8"/>
-    <title>MyWeahter</title>
+    <title>MyWeather</title>
     <!-- <script type="text/javascript" src="jquery_3.4.1.min.js"></script> -->
-    <script type="text/javascript" src="settings.js"></script>
-    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="settings.js" ></script>
+    <script type="text/javascript" src="apiHandler.js" ></script>
+    <script type="text/javascript" src="dataVirtualizer.js" ></script>
+    <script type="text/javascript" src="main.js" defer></script>
     <link rel="stylesheet" href="main.css">
 
 </head>
@@ -17,6 +19,8 @@
     </div>
 
     <main>
+        <nav><ul id="navCities">&nbsp;</ul></nav>
+
         <h1 id="name"></h1>
 
         <div id="currentWeather" class="box">
@@ -31,9 +35,6 @@
             <p id="sunset"></p>
             <p id="time"></p>
         </div>
-
-        <button>Die Nächsten 12 Stunden</button>
-        <button>Die Nächsten 5 Tage</button>
     </main>
 </body>
 
