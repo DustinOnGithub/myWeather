@@ -1,0 +1,21 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+body{
+    position: absolute;
+    height: calc(100% - 20px);
+    width: calc(100% - 20px);
+    margin: 10px;
+}
+
+main{
+    display: none;
+}
+
+.box{
+    border: solid black 1px;
+    padding: 3px;
+    border-radius: 6px;
+}
