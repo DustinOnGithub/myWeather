@@ -32,6 +32,9 @@ window.onload = function(){
     }
   }
 
-  dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));
+  let updateLoop = setInterval(() => {
+    dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));    
+  }, 5000);
+
 }
 
