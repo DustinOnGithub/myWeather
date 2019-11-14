@@ -28,13 +28,29 @@ window.onload = function(){
       cityData = apiHandler.getCurrentForCity(settings.cities[i]);
       li = this.document.createElement('li');
       li.innerHTML = cityData.name;
+      li.setAttribute('cityId', cityData.id);
+      li.onclick = function(){
+        currentCity = this.getAttribute('cityId');
+        updateUi();
+      };
       navUl.appendChild(li);
     }
+
+    function updateUi(){
+      dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));
+    }
+
+    updateUi();
+
+    let updateLoop = setInterval(() => {
+      updateUi();
+    }, 5000);
   }
-
-  let updateLoop = setInterval(() => {
-    dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));    
-  }, 5000);
-
+  else{
+    let p = this.document.createElement('p')
+    p.innerText = "No weather data available!";
+    p.style = 'color: red;';
+    this.document.getElementById('name').appendChild(p);
+  }
 }
 
