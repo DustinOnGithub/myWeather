@@ -10,11 +10,11 @@ class ApiHandler{
         this.cities = settings.cities;
         this.cache = [];
 
-        for(; i < this.cities.length; i++){
+        for(; i < settings.cities.length; i++){
             
             this.cache.push(
                 {
-                    city: this.cities[i],
+                    city: settings.cities[i],
                     current: {
                         lastUpdate: false,
                         data: {}
@@ -52,46 +52,24 @@ class ApiHandler{
             ){
                 xHttp = new XMLHttpRequest();
 
-                xHttp.onreadystatechange = function() {
-                    let k;
-                    if (this.readyState == 4){  
-                      switch(this.status) {
-                        case 200:
-
-                            let response = JSON.parse(this.response);
-
-                            console.debug(response);
-
-                            //get the right cache and update:
-                            for(k = 0; k < self.cache.length; k++){
-                                if(self.cache[k].city == response.id){
-                                    self.cache[k].current.lastUpdate = response.dt * 1000;
-                                    self.cache[k].current.data = response;
-                                    console.debug("updated current weather cache for city '" + self.cache[k].current.data.name + "'!");
-                                    success = true;
-                                }
-                            }
-
-                            break;
-                        case 401:
-                            alert("unauthorized! probably api-key is invalid");
-                            break;
-                        case 429:
-                            alert('to many requests to open weather! Try it later...');
-                            break;
-                        case 500:
-                            alert("Server error! Try it later...");
-                            break;
-                      }
-                
-                      document.getElementById('loading').style = 'display: none';
-                      document.getElementsByTagName('main')[0].style = 'display: inline';
+                xHttp.onload = function() {
+                    let response;
+                    if(response = self.handleResponse(this)){
+                        if(self.cache[i].city == response.id){
+                            self.cache[i].current.lastUpdate = response.dt * 1000;
+                            self.cache[i].current.data = response;
+                            console.debug("updated current weather cache for city '" + self.cache[i].current.data.name + "'!");
+                            success = true;
+                        }
+                    }
+                    else{
+                        console.debug("api request failed! no current weather!");
                     }
                 };
 
                 xHttp.open(
                     "GET", 
-                    "http://api.openweathermap.org/data/2.5/weather?APPID="+settings.apiKey+"&id="+ self.cities[i] +"&units=metric" + XMLHttpRequest.noCacheStr(), 
+                    "http://api.openweathermap.org/data/2.5/weather?APPID="+settings.apiKey+"&id="+ settings.cities[i] +"&units=metric" + XMLHttpRequest.noCacheStr(), 
                     false //no async!
                 );
                 xHttp.send();
@@ -101,5 +79,80 @@ class ApiHandler{
             }
         }
         return success;
+    }
+
+    getForecastWeather() {
+        let i = 0, xHttp, self = this, success = false, response;
+
+        if(!this.cache[i].forecast.lastUpdate || 
+            ((new Date().getTime() - this.cache[i].forecast.lastUpdate) 
+                > CURRENT_UPDATE_INTERVAL
+            )
+        ){
+            for(; i < this.cities.length; i++){
+                xHttp = new XMLHttpRequest();
+
+                xHttp.onload = function () {
+                    
+                    if(response = self.handleResponse(this)){
+                        if(self.cache[i].city == response.city.id){
+                            self.cache[i].forecast.lastUpdate = new Date().getTime();
+                            self.cache[i].forecast.data = response;
+                            console.debug("updated forecast weather cache for city '" + self.cache[i].current.data.name + "'!");
+                            success = true;
+                        }
+                    }
+                };
+                
+                xHttp.open(
+                    "GET",
+                    "http://api.openweathermap.org/data/2.5/forecast?APPID="+ settings.apiKey +"&id="+settings.cities[i] +"&units=metric" + XMLHttpRequest.noCacheStr(),
+                    false //no asy                
+                );
+                xHttp.send();
+            }
+        }
+        else{
+            console.debug("forecast weather for city '" + this.cache[i].current.data.name + "' already cached!");
+        }
+
+        return success;
+    }
+
+    getForecastForCity(cityId){
+        let k;
+        this.getForecastWeather();
+
+        for(k = 0; k < this.cache.length; k++){
+            if(this.cache[k].city == cityId){
+                return this.cache[k].forecast.data;
+            }
+        }
+        return false;
+    }
+
+    handleResponse(xHttp){
+        //todo: alert is not working in the webView
+        switch(xHttp.status) {
+            case 200:
+
+                let response = JSON.parse(xHttp.response);
+                console.debug(response);
+                return response;
+
+            case 401:
+                alert("unauthorized! probably api-key is invalid");
+                break;
+            case 429:
+                alert('to many requests to open weather! Try it later...');
+                break;
+            case 500:
+                alert("Server error! Try it later...");
+                break;
+            default:
+                alert('unhandled http code ' + xHttp.status);
+                break;
+        }
+        return false;
     }
 }
