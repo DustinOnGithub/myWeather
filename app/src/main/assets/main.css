@@ -14,6 +14,14 @@ main{
     display: none;
 }
 
+nav > ul > li {
+    padding: 10px;
+    border: solid black thin;
+    border-radius: 5px;
+    list-style: none;
+    margin: 5px;
+}
+
 .box{
     border: solid black 1px;
     padding: 3px;

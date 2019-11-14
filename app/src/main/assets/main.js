@@ -34,7 +34,7 @@ window.onload = function(){
       li = this.document.createElement('li');
       li.innerHTML = cityData.name;
       li.setAttribute('cityId', cityData.id);
-      li.onclick = function(){
+      li.onclick = li.ontouchend = function(){
         currentCity = this.getAttribute('cityId');
         updateUi();
       };
