@@ -14,6 +14,11 @@ XMLHttpRequest.noCacheStr = function(){
   return '&noCache=' + Math.random().toString(36).substring(7);
 }
 
+function hideLoadingPage() {
+  document.getElementById('loading').style = 'display: none';
+  document.getElementsByTagName('main')[0].style = 'display: inline';
+}
+
 window.onload = function(){
 
   let cityId = settings.cities[0];
@@ -23,7 +28,7 @@ window.onload = function(){
   let navUl = this.document.getElementById('navCities');
   let currentCity = settings.cities[0];
 
-  if(apiHandler.getCurrentWeather()){
+  if(apiHandler.getCurrentWeather() && apiHandler.getForecastWeather()){
     for(i = 0; i < settings.cities.length; i++){
       cityData = apiHandler.getCurrentForCity(settings.cities[i]);
       li = this.document.createElement('li');
@@ -38,8 +43,10 @@ window.onload = function(){
 
     function updateUi(){
       dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));
+      dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity));
     }
 
+    hideLoadingPage();
     updateUi();
 
     let updateLoop = setInterval(() => {
@@ -47,10 +54,11 @@ window.onload = function(){
     }, 5000);
   }
   else{
-    let p = this.document.createElement('p')
+    let p = document.createElement('p')
     p.innerText = "No weather data available!";
     p.style = 'color: red;';
-    this.document.getElementById('name').appendChild(p);
+    document.getElementById('name').appendChild(p);
+    this.hideLoadingPage();
   }
 }
 
