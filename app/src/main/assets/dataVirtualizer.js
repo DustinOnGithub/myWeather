@@ -3,6 +3,8 @@ class DataVirtualizer{
     constructor(){
         let i;
         this.cache = [];
+        //quick and dirty to fix bug:
+        this.currentCity = false;
         for(i = 0; i < settings.cities.length; i++){
             this.cache[settings.cities[i]] = {
                 city: settings.cities[i],
@@ -20,8 +22,11 @@ class DataVirtualizer{
         let calculationTime, sunsetTime, sunriseTime;
  
         //only update gui if data is also updated
-        if(!this.cache[data.id].lastUpdate || this.cache[data.id].lastUpdate < data.dt){
-            
+        if(this.currentCity != data.id ||
+            !this.cache[data.id].lastUpdate || this.cache[data.id].lastUpdate < data.dt){
+
+            this.currentCity = data.id;
+
             this.cache[data.id].lastUpdate = data.dt;
 
             calculationTime = new Date(data.dt * 1000);
@@ -58,7 +63,8 @@ class DataVirtualizer{
 
             days = this.calcAvgPerDay(data);
 
-            console.log(days);
+            console.debug('days: ');
+            console.debug(days);
         }
     }
 
@@ -91,14 +97,25 @@ class DataVirtualizer{
                 else{
                     days[index].numberOfData++;
                     days[index].temp += data.list[item].main.temp * 100;
-                    days[index].temp_min += data.list[item].main.temp_min * 100;
-                    days[index].temp_max += data.list[item].main.temp_max * 100;
+                    if(days[index].temp_min > data.list[item].main.temp_min)
+                        days[index].temp_min = data.list[item].main.temp_min;
+                    if(days[index].temp_max < data.list[item].main.temp_max)
+                        days[index].temp_max = data.list[item].main.temp_max;
                     days[index].pressure += data.list[item].main.pressure;
                     days[index].sea_level += data.list[item].main.sea_level;
                     days[index].grnd_level += data.list[item].main.grnd_level;
                     days[index].humidity += data.list[item].main.humidity;
                 }
             }
+        }
+
+        for(index = 0; index < days.length; index++){
+
+            days[index].temp = (days[index].temp / days[index].numberOfData) / 100;
+            days[index].pressure = days[index].pressure / days[index].numberOfData;
+            days[index].sea_level = days[index].sea_level / days[index].numberOfData
+            days[index].grnd_level = days[index].grnd_level / days[index].numberOfData
+            days[index].humidity = days[index].humidity / days[index].numberOfData
         }
 
         return days;
