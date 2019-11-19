@@ -4,13 +4,13 @@
 <head>
     <meta charset="utf-8"/>
     <title>MyWeather</title>
-    <!-- <script type="text/javascript" src="jquery_3.4.1.min.js"></script> -->
+    <script src="chartist.min.js"></script>
     <script type="text/javascript" src="settings.js" ></script>
     <script type="text/javascript" src="apiHandler.js" ></script>
     <script type="text/javascript" src="dataVirtualizer.js" ></script>
     <script type="text/javascript" src="main.js" defer></script>
+    <link rel="stylesheet" href="chartist.min.css">
     <link rel="stylesheet" href="main.css">
-
 </head>
 
 <body>
@@ -37,7 +37,7 @@
         </div>
 
         <div id="forecast5Days" class="box">
-            
+            <div class="ct-chart ct-perfect-fourth">&nbsp;</div>
         </div>
 
         <div id="forecast24Hours" class="box"></div>
