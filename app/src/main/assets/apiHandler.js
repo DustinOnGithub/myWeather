@@ -1,4 +1,4 @@
-const CURRENT_UPDATE_INTERVAL = 600000; // 10 minutes, recommend
+const UPDATE_INTERVAL = 600000; // 10 minutes, recommend
 
 class ApiHandler{
 
@@ -47,7 +47,7 @@ class ApiHandler{
             
             if(!this.cache[i].current.lastUpdate || 
                 ((new Date().getTime() - new Date(this.cache[i].current.lastUpdate).getTime()) 
-                    > CURRENT_UPDATE_INTERVAL
+                    > UPDATE_INTERVAL
                 )
             ){
                 xHttp = new XMLHttpRequest();
@@ -86,7 +86,7 @@ class ApiHandler{
 
         if(!this.cache[i].forecast.lastUpdate || 
             ((new Date().getTime() - this.cache[i].forecast.lastUpdate) 
-                > CURRENT_UPDATE_INTERVAL
+                > UPDATE_INTERVAL
             )
         ){
             for(; i < this.cities.length; i++){

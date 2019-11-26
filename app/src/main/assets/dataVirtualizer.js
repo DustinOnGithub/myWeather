@@ -16,6 +16,11 @@ class DataVirtualizer{
                 }
             }
         }
+
+        this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
+        Chart.defaults.global.defaultFontColor = 'black';
+        Chart.defaults.global.defaultFontSize = 15;
+        
     }
 
     displayCurrentWeather(data){
@@ -52,24 +57,73 @@ class DataVirtualizer{
     }
 
     displayForecast5Days(data){
-        let days;
+        let days, i, labels = [], datasets;
 
         //only update gui if data is also updated
         if(!this.cache[data.city.id].lastUpdate || 
-            (new Date().getTime() * 1000 - this.cache[data.city.id].lastUpdate) > CURRENT_UPDATE_INTERVAL)
+            (new Date().getTime() - this.cache[data.city.id].lastUpdate) > UPDATE_INTERVAL)
         {
-            this.cache[data.city.id].lastUpdate = new Date().getTime() * 1000;
+            this.cache[data.city.id].lastUpdate = new Date().getTime();
             console.debug('update forecast gui');
+
+            datasets = [
+                {
+                    label: 'Min',
+                    data: [],
+                    borderColor: 'darkblue',
+                    backgroundColor: '#00008bab',
+                    borderWidth: 2,
+                    fill: true
+                },
+                {
+                    label: 'AVG',
+                    data: [],
+                    borderColor:'black',
+                    backgroundColor: '#0000008f',
+                    borderWidth: 2,
+                    fill: true
+                },
+                {
+                    label: 'Max',
+                    data: [],
+                    borderColor: 'red',
+                    backgroundColor: '#ff00004f',
+                    borderWidth: 2,
+                    fill: true
+                }
+            ];
 
             days = this.calcAvgPerDay(data);
 
-            console.debug('days: ');
-            console.debug(days);
+            for(i = 0; i < days.length; i++){
+                datasets[0].data.push(days[i].temp_min);
+                datasets[1].data.push(days[i].temp);
+                datasets[2].data.push(days[i].temp_max); 
+                labels.push(days[i].dayString);
+            }
+
+            var chart = new Chart(this.ctx5daysForecast,{
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options:{
+                    title: {
+                        display: true,
+                        text: 'Temperatur in Celsius',
+                        position: 'bottom'
+                    },
+                    maintainAspectRatio: false
+                }
+            });
+
+            chart.canvas.parentNode.style.height = '300px';
         }
     }
 
     calcAvgPerDay(data){
-        let item, index, days = [], today = new Date();
+        let item, index, days = [], today = new Date(), time;
 
         for(item = 0; item < data.list.length; item++){
             time = new Date(data.list[item].dt * 1000);
@@ -84,6 +138,7 @@ class DataVirtualizer{
                 if(index == -1){
                     days.push({
                         day: time.getDay(),
+                        dayString: time.toGermanDayShort(),
                         numberOfData: 0,
                         temp: 0,
                         temp_min: 0,
@@ -111,7 +166,7 @@ class DataVirtualizer{
 
         for(index = 0; index < days.length; index++){
 
-            days[index].temp = (days[index].temp / days[index].numberOfData) / 100;
+            days[index].temp = (Math.round(days[index].temp / days[index].numberOfData)) / 100;
             days[index].pressure = days[index].pressure / days[index].numberOfData;
             days[index].sea_level = days[index].sea_level / days[index].numberOfData
             days[index].grnd_level = days[index].grnd_level / days[index].numberOfData

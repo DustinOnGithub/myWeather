@@ -4,12 +4,12 @@
 <head>
     <meta charset="utf-8"/>
     <title>MyWeather</title>
-    <script src="chartist.min.js"></script>
+    <script src="Chart.min.js"></script>
     <script type="text/javascript" src="settings.js" ></script>
     <script type="text/javascript" src="apiHandler.js" ></script>
     <script type="text/javascript" src="dataVirtualizer.js" ></script>
     <script type="text/javascript" src="main.js" defer></script>
-    <link rel="stylesheet" href="chartist.min.css">
+    <link rel="stylesheet" href="Chart.min.css">
     <link rel="stylesheet" href="main.css">
 </head>
 
@@ -37,7 +37,10 @@
         </div>
 
         <div id="forecast5Days" class="box">
-            <div class="ct-chart ct-perfect-fourth">&nbsp;</div>
+            <h3>5-Tage Vorschau</h3>
+            <div class="canvasHolder">
+                <canvas id="forecast5DaysCanvas">no canvas supported</canvas>
+            </div>
         </div>
 
         <div id="forecast24Hours" class="box"></div>

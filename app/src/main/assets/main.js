@@ -4,11 +4,24 @@
 
 Date.prototype.toString = function(){
   return this.getHours() +':' + this.getMinutes() + ':' + this.getSeconds() + ' ' + this.getDate()+'.'+this.getMonth()+'.'+this.getFullYear();
-}
+};
 
 Date.prototype.toTimeString = function(){
   return this.getHours() +':' + this.getMinutes();
-}
+};
+
+Date.prototype.toGermanDayShort = function () {
+  switch(this.getDay()){
+    case 0: return 'Son';
+    case 1: return 'Mon';
+    case 2: return 'Die';
+    case 3: return 'Mit';
+    case 4: return 'Don';
+    case 5: return 'Fre';
+    case 6: return 'Sam';
+    default: return 'undefined';
+  }
+};
 
 XMLHttpRequest.noCacheStr = function(){
   return '&noCache=' + Math.random().toString(36).substring(7);
