@@ -10,6 +10,10 @@ body{
     margin: 10px;
 }
 
+h3{
+    text-align: center;
+}
+
 main{
     display: none;
 }
@@ -26,4 +30,40 @@ nav > ul > li {
     border: solid black 1px;
     padding: 3px;
     border-radius: 6px;
+}
+
+#forecast5Days g.ct-series-a > .ct-line{
+    stroke: gray;
+}
+
+#forecast5Days g.ct-series-a > .ct-point{
+    stroke: gray;
+}
+
+#forecast5Days g.ct-series-a > .ct-area{
+    fill: gray;
+}
+
+#forecast5Days g.ct-series-b > .ct-line{
+    stroke: red;
+}
+
+#forecast5Days g.ct-series-b > .ct-point{
+    stroke: red;
+}
+
+#forecast5Days g.ct-series-b > .ct-area{
+    fill: red;
+}
+
+#forecast5Days g.ct-series-c > .ct-line{
+    stroke: blue;
+}
+
+#forecast5Days g.ct-series-c > .ct-point{
+    stroke: blue;
+}
+
+#forecast5Days g.ct-series-c > .ct-area{
+    fill: blue;
 }
