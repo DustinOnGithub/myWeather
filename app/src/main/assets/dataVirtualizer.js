@@ -71,7 +71,7 @@ class DataVirtualizer{
                     label: 'Min',
                     data: [],
                     borderColor: 'darkblue',
-                    backgroundColor: '#00008bab',
+                    backgroundColor: '#00008b8c',
                     borderWidth: 2,
                     fill: true
                 },
@@ -87,7 +87,7 @@ class DataVirtualizer{
                     label: 'Max',
                     data: [],
                     borderColor: 'red',
-                    backgroundColor: '#ff00004f',
+                    backgroundColor: '#ff040475',
                     borderWidth: 2,
                     fill: true
                 }
@@ -141,7 +141,7 @@ class DataVirtualizer{
                         dayString: time.toGermanDayShort(),
                         numberOfData: 0,
                         temp: 0,
-                        temp_min: 0,
+                        temp_min: 100,
                         temp_max: 0,
                         pressure: 0,
                         sea_level: 0,
