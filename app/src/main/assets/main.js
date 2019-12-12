@@ -73,11 +73,11 @@ function displayCity(navUl, apiHandler, cityIndex, lastLi = undefined) {
   else
     li.setAttribute('id', 'selectedCity');
   
-  li.onclick = li.ontouchend = function(){
+  li.ontouchend = function(){
     currentCity = this.getAttribute('cityId');
     document.getElementById('selectedCity').removeAttribute('id');
     this.setAttribute('id', 'selectedCity');
-    updateUi();
+    updateUi(true);
   };
   
   navUl.appendChild(li);
@@ -93,9 +93,9 @@ let apiHandler = new ApiHandler();
 let dataVirtualizer = new DataVirtualizer();
 let currentCity;
 
-function updateUi(){
-  dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));
-  dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity));
+function updateUi(force = false){
+  dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity), force);
+  dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity), force);
 }
 
 window.onload = function(){

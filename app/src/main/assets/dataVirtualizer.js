@@ -23,13 +23,14 @@ class DataVirtualizer{
         
     }
 
-    displayCurrentWeather(data){
+    displayCurrentWeather(data, force = false){
         let calculationTime, sunsetTime, sunriseTime, cacheIndex;
  
         cacheIndex = this.cache.findCacheIndex(data.id);
 
         //only update gui if data is also updated
-        if(this.currentCity != data.id ||
+        if(force ||
+            this.currentCity != data.id ||
             !this.cache[cacheIndex].current.lastUpdate || this.cache[cacheIndex].current.lastUpdate < data.dt){
 
             this.currentCity = data.id;
@@ -56,17 +57,18 @@ class DataVirtualizer{
         
     }
 
-    displayForecast5Days(data){
+    displayForecast5Days(data, force = false){
 
         let index = this.cache.findCacheIndex(data.city.id);
 
         //only update gui if data is also updated
-        if(this.currentCity != data.city.id ||
+        if(force ||
+            this.currentCity != data.city.id ||
             !this.cache[index].forecast.lastUpdate || 
             this.cache[index].forecast.lastUpdate < data.list[0].dt
         ){
 
-            this.currentCity = data.id;
+            this.currentCity = data.city.id;
             this.cache[index].forecast.lastUpdate = data.list[0].dt;
 
             console.debug('update forecast gui');
@@ -79,8 +81,8 @@ class DataVirtualizer{
     displayForecast5Days_temperature (data){
         let days, i, labels = [], datasets;
 
-
-        datasets = this.chartOption_forecast5Day;
+        // 'clone' object:
+        datasets = JSON.parse(JSON.stringify(this.chartOption_forecast5Day));
 
         days = this.calcAvgTempPerDay(data);
 
