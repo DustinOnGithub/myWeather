@@ -56,20 +56,16 @@ function hideLoadingPage() {
  * -> enough time for the html to calculate the size of the li
  * there could be a nicer solution with css
  */
-function displayCity(navUl, apiHandler, cityIndex, lastLi = undefined) {
+function displayCity(navUl, apiHandler, cityIndex, offset = 0) {
 
   let cityData = apiHandler.getCurrentForCity(settings.cities[cityIndex]);
-
-  let lastLeft = 0;
-  if(lastLi != undefined)
-    lastLeft = lastLi.offsetWidth;
 
   let li = this.document.createElement('li');
   li.innerHTML = cityData.name;
   li.setAttribute('cityId', cityData.id);
   
-  if(lastLeft > 0)
-    li.style.left = (lastLeft + 20) + "px"; 
+  if(offset > 0)
+    li.style.left = (offset) + "px"; 
   else
     li.setAttribute('id', 'selectedCity');
   
@@ -84,7 +80,7 @@ function displayCity(navUl, apiHandler, cityIndex, lastLi = undefined) {
 
   if(++cityIndex < settings.cities.length){
     setTimeout(function () {
-      displayCity(navUl, apiHandler, cityIndex, li);
+      displayCity(navUl, apiHandler, cityIndex, offset + li.offsetWidth + 20);
     },50);
   }
 }
