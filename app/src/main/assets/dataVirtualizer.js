@@ -49,7 +49,6 @@ class DataVirtualizer{
             document.getElementById('sunset').innerText = 'Sonnenuntergang: ' + sunsetTime.toTimeString();
             document.getElementById('txt').innerText = data.weather[0].description;
             document.getElementById('time').innerText = 'Zeit: ' + calculationTime.toString()
-            document.getElementById('name').innerText = data.name;
         }
     }
 

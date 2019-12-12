@@ -50,32 +50,62 @@ function hideLoadingPage() {
   document.getElementsByTagName('main')[0].style = 'display: inline';
 }
 
+
+/**
+ * using recursion -> using setTimeout 
+ * -> enough time for the html to calculate the size of the li
+ * there could be a nicer solution with css
+ */
+function displayCity(navUl, apiHandler, cityIndex, lastLi = undefined) {
+
+  let cityData = apiHandler.getCurrentForCity(settings.cities[cityIndex]);
+
+  let lastLeft = 0;
+  if(lastLi != undefined)
+    lastLeft = lastLi.offsetWidth;
+
+  let li = this.document.createElement('li');
+  li.innerHTML = cityData.name;
+  li.setAttribute('cityId', cityData.id);
+  
+  if(lastLeft > 0)
+    li.style.left = (lastLeft + 20) + "px"; 
+  else
+    li.setAttribute('id', 'selectedCity');
+  
+  li.onclick = li.ontouchend = function(){
+    currentCity = this.getAttribute('cityId');
+    document.getElementById('selectedCity').removeAttribute('id');
+    this.setAttribute('id', 'selectedCity');
+    updateUi();
+  };
+  
+  navUl.appendChild(li);
+
+  if(++cityIndex < settings.cities.length){
+    setTimeout(function () {
+      displayCity(navUl, apiHandler, cityIndex, li);
+    },50);
+  }
+}
+
+let apiHandler = new ApiHandler();
+let dataVirtualizer = new DataVirtualizer();
+let currentCity;
+
+function updateUi(){
+  dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));
+  dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity));
+}
+
 window.onload = function(){
 
-  let cityId = settings.cities[0];
-  let apiHandler = new ApiHandler();
-  let dataVirtualizer = new DataVirtualizer();
-  let i, li, cityData;
   let navUl = this.document.getElementById('navCities');
-  let currentCity = settings.cities[0];
+  currentCity = settings.cities[0];
 
   if(apiHandler.getCurrentWeather() && apiHandler.getForecastWeather()){
-    for(i = 0; i < settings.cities.length; i++){
-      cityData = apiHandler.getCurrentForCity(settings.cities[i]);
-      li = this.document.createElement('li');
-      li.innerHTML = cityData.name;
-      li.setAttribute('cityId', cityData.id);
-      li.onclick = li.ontouchend = function(){
-        currentCity = this.getAttribute('cityId');
-        updateUi();
-      };
-      navUl.appendChild(li);
-    }
-
-    function updateUi(){
-      dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity));
-      dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity));
-    }
+    
+    this.displayCity(navUl, apiHandler, 0);
 
     hideLoadingPage();
     updateUi();
@@ -92,4 +122,3 @@ window.onload = function(){
     this.hideLoadingPage();
   }
 }
-
