@@ -67,3 +67,16 @@ nav > ul > li {
 #forecast5Days g.ct-series-c > .ct-area{
     fill: blue;
 }
+
+#forecast5Days table{
+    width: 100%;
+    text-align: center;
+}
+
+#forecast5Days img{
+    width: 100%;
+}
+
+#forecast5Days tbody td{
+    width: 20%;
+}

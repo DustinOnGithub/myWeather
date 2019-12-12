@@ -23,6 +23,24 @@ Date.prototype.toGermanDayShort = function () {
   }
 };
 
+Array.prototype.findWeatherIndex = function (weather) {
+  return this.findIndex((item) => {
+    return item.main == weather;
+  });
+}
+
+Array.prototype.findDayIndex = function (currentTime){
+  return this.findIndex((item) => {
+      return item.day == currentTime.getDay();
+  });
+}
+
+Array.prototype.findCacheIndex = function (city) {
+  return this.findIndex((item) => {
+    return item.city == city;
+  });
+}
+
 XMLHttpRequest.noCacheStr = function(){
   return '&noCache=' + Math.random().toString(36).substring(7);
 }
