@@ -73,18 +73,19 @@ class DataVirtualizer{
 
             console.debug('update forecast gui');
 
-            this.displayForecast5Days_temperature(data);
-            this.displayForecast5Days_weather(data);
+            this.displayForecast5Days_chart(data);
+            this.displayForecast5Days_table(data);
         }
     }
 
-    displayForecast5Days_temperature (data){
-        let days, i, labels = [], datasets;
+    displayForecast5Days_chart (data){
+        let days, i = 0, labels = [], datasets;
 
         // 'clone' object:
         datasets = JSON.parse(JSON.stringify(this.chartOption_forecast5Day));
 
         days = this.calcAvgTempPerDay(data);
+
 
         for(i = 0; i < days.length; i++){
             datasets[0].data.push(days[i].temp_min);
@@ -116,7 +117,7 @@ class DataVirtualizer{
         chart.canvas.parentNode.style.height = '300px';
     }
 
-    displayForecast5Days_weather (data){
+    displayForecast5Days_table (data){
 
         let item, time, dIndex, wIndex, days = [], today = new Date(), avgWeather;
 
@@ -172,14 +173,50 @@ class DataVirtualizer{
             }
         }
 
-        let htmlIcons = document.getElementById('forecast5Days')
-            .getElementsByTagName('tbody')[0].getElementsByTagName('td');
+        let trElements = document.getElementById('forecast5Days')
+            .getElementsByTagName('tbody')[0].getElementsByTagName('tr');
         let i = 0;
 
         for (const day of days) {
-            htmlIcons[i].getElementsByTagName('img')[0].src = 'icons/'+day.avgIcon+'d.png';
+
+            trElements[0]
+                .getElementsByClassName('day')[i+1]
+                .innerText = day.time.toGermanDayShort();
+
+            trElements[1]
+                .getElementsByTagName('td')[i+1]
+                .getElementsByTagName('img')[0]
+                .src = 'icons/'+day.avgIcon+'d.png';
             i++;
         }
+
+        days = this.calcAvgTempPerDay(data);
+        i = 0;
+
+        for (const day of days) {
+            trElements[2]
+                .getElementsByTagName('td')[i+1]
+                .getElementsByClassName('maxTemp')[0]
+                .innerText = day.temp_max + '°';
+
+            trElements[3]
+                .getElementsByTagName('td')[i+1]
+                .getElementsByClassName('avgTemp')[0]
+                .innerText = day.temp + '°';
+
+            trElements[4]
+                .getElementsByTagName('td')[i+1]
+                .getElementsByClassName('minTemp')[0]
+                .innerText = day.temp_min + '°';
+    
+
+            trElements[5]
+                .getElementsByTagName('td')[i+1]
+                .getElementsByClassName('humidity')[0]
+                .innerText = Math.round(day.humidity) + ' %';
+            i++;
+        }
+
     }
 
     calcAvgTempPerDay(data){
