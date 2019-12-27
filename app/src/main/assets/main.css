@@ -99,3 +99,22 @@ nav > ul > li {
 #forecast5Days tbody td{
     width: 20%;
 }
+
+#forecast24Hours {
+    position: absolute;
+    width: calc(100% - 6px - 2px);
+    overflow: scroll;
+}
+
+/* #forecast24Hours table{
+    table-layout: fixed;
+}
+
+*/
+
+#forecast24Hours span{
+    text-align: center;
+    display: block;
+} 
+   
+

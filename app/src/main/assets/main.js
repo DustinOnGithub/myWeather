@@ -7,8 +7,15 @@ Date.prototype.toString = function(){
 };
 
 Date.prototype.toTimeString = function(){
-  return this.getHours() +':' + this.getMinutes();
+  let hours = this.getHours(), minutes = this.getMinutes();
+  hours = hours < 10 ? ('0'+hours) : hours;
+  minutes = minutes < 10 ? ('0'+minutes) : minutes;
+  return hours +':' + minutes;
 };
+
+Date.prototype.toDayAndTimeString = function () {
+  return this.toGermanDayShort()+' '+this.toTimeString();
+}
 
 Date.prototype.toGermanDayShort = function () {
   switch(this.getDay()){
@@ -65,7 +72,7 @@ function displayCity(navUl, apiHandler, cityIndex, offset = 0) {
   li.setAttribute('cityId', cityData.id);
   
   if(offset > 0)
-    li.style.left = (offset) + "px"; 
+    li.style.left = offset + "px"; 
   else
     li.setAttribute('id', 'selectedCity');
   
@@ -92,6 +99,7 @@ let currentCity;
 function updateUi(force = false){
   dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity), force);
   dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity), force);
+  dataVirtualizer.displayForecast3HourInterval(apiHandler.getForecastForCity(currentCity), force);
 }
 
 window.onload = function(){

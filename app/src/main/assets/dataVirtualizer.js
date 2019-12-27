@@ -219,6 +219,91 @@ class DataVirtualizer{
 
     }
 
+    displayForecast3HourInterval(data){
+
+        console.log(data);
+
+        let trElements = document.getElementById('forecast24Hours')
+            .getElementsByTagName('tr');
+
+        let timeElem = document.createElement('th');
+        timeElem.className += ' time'
+        timeElem.appendChild(document.createElement('span'));
+
+        let weatherElem = document.createElement('td');
+        weatherElem.className += ' weather'
+        weatherElem.appendChild(document.createElement('img'));
+
+        let maxTempElem = document.createElement('td');
+        maxTempElem.className += ' maxTemp';
+        maxTempElem.appendChild(document.createElement('span'));
+
+        let avgTempElem = document.createElement('td');
+        avgTempElem.className += ' avgTemp';
+        avgTempElem.appendChild(document.createElement('span'));
+
+        let feelTempElem = document.createElement('td');
+        feelTempElem.className += ' feelTemp';
+        feelTempElem.appendChild(document.createElement('span'));
+
+        let minTempElem = document.createElement('td');
+        minTempElem.className += ' minTemp';
+        minTempElem.appendChild(document.createElement('span'));
+
+        let humidityElem = document.createElement('td');
+        humidityElem.className += ' humidity';
+        humidityElem.appendChild(document.createElement('span'));
+        
+        //todo: bugie
+        let weatherClone, timeClone, maxTempClone, avgTempClone, feelTempClone, minTempClone, humidityClone, date;
+        let i;
+        for (const tr of trElements) {
+            i = 0;
+            for (const td of tr.getElementsByTagName('td')) {
+                if(i++>0){
+                    td.remove();
+                    
+                }
+            }
+        }
+
+        console.log(trElements[1].getElementsByTagName('td').length);
+
+        for(const hour of data.list)
+        {
+            date = new Date(hour.dt * 1000);
+
+            timeClone = timeElem.cloneNode(true);
+            timeClone.getElementsByTagName('span')[0].innerText = date.toDayAndTimeString();
+            trElements[0].appendChild(timeClone);
+
+            weatherClone = weatherElem.cloneNode(true);
+            weatherClone.getElementsByTagName('img')[0].src = 'icons/' + hour.weather[0].icon+'.png';
+            trElements[1].appendChild(weatherClone);
+
+            maxTempClone = maxTempElem.cloneNode(true);
+            maxTempClone.getElementsByTagName('span')[0].innerText = hour.main.temp_max + '°';
+            trElements[2].appendChild(maxTempClone);
+            
+            avgTempClone = avgTempElem.cloneNode(true);
+            avgTempClone.getElementsByTagName('span')[0].innerText = hour.main.temp + '°';
+            trElements[3].appendChild(avgTempClone);
+
+            feelTempClone = feelTempElem.cloneNode(true);
+            feelTempClone.getElementsByTagName('span')[0].innerText = hour.main.feels_like + '°';
+            trElements[4].appendChild(feelTempClone);
+
+            minTempClone = minTempElem.cloneNode(true);
+            minTempClone.getElementsByTagName('span')[0].innerText = hour.main.temp_min + '°';
+            trElements[5].appendChild(minTempClone);
+
+            humidityClone = humidityElem.cloneNode(true);
+            humidityClone.getElementsByTagName('span')[0].innerText = hour.main.humidity + '%';
+            trElements[6].appendChild(humidityClone);
+        }
+
+    }
+
     calcAvgTempPerDay(data){
         let item, index, days = [], today = new Date(), time;
 
@@ -272,10 +357,6 @@ class DataVirtualizer{
         }
 
         return days;
-    }
-
-    displayForecast24Hours(data){
-
     }
 
     chartOption_forecast5Day = [
