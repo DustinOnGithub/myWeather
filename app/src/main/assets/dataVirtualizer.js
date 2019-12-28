@@ -13,6 +13,9 @@ class DataVirtualizer{
                 },
                 forecast: {
                     lastUpdate: false
+                },
+                forecast3HourInterval:{
+                    lastUpdate: false
                 }
             });
         }
@@ -184,7 +187,7 @@ class DataVirtualizer{
                 .innerText = day.time.toGermanDayShort();
 
             trElements[1]
-                .getElementsByTagName('td')[i+1]
+                .getElementsByTagName('td')[i]
                 .getElementsByTagName('img')[0]
                 .src = 'icons/'+day.avgIcon+'d.png';
             i++;
@@ -195,23 +198,23 @@ class DataVirtualizer{
 
         for (const day of days) {
             trElements[2]
-                .getElementsByTagName('td')[i+1]
+                .getElementsByTagName('td')[i]
                 .getElementsByClassName('maxTemp')[0]
                 .innerText = day.temp_max + '°';
 
             trElements[3]
-                .getElementsByTagName('td')[i+1]
+                .getElementsByTagName('td')[i]
                 .getElementsByClassName('avgTemp')[0]
                 .innerText = day.temp + '°';
 
             trElements[4]
-                .getElementsByTagName('td')[i+1]
+                .getElementsByTagName('td')[i]
                 .getElementsByClassName('minTemp')[0]
                 .innerText = day.temp_min + '°';
     
 
             trElements[5]
-                .getElementsByTagName('td')[i+1]
+                .getElementsByTagName('td')[i]
                 .getElementsByClassName('humidity')[0]
                 .innerText = Math.round(day.humidity) + ' %';
             i++;
@@ -219,13 +222,28 @@ class DataVirtualizer{
 
     }
 
-    displayForecast3HourInterval(data){
-
+    displayForecast3HourInterval(data, force = false){
         console.log(data);
+        let index = this.cache.findCacheIndex(data.city.id);
 
-        let trElements = document.getElementById('forecast24Hours')
+        if(!force &&
+            this.currentCity == data.city.id &&
+            this.cache[index].forecast3HourInterval.lastUpdate && 
+            this.cache[index].forecast3HourInterval.lastUpdate >= data.list[0].dt
+        )
+        {
+            return;
+        }
+
+        this.currentCity = data.city.id;
+        this.cache[index].forecast3HourInterval.lastUpdate = data.list[0].dt;
+
+        let trElements = document.getElementById('forecast3HourInterval')
             .getElementsByTagName('tr');
 
+        let oldElements = document.querySelectorAll("#forecast3HourInterval td");
+        oldElements.forEach(el => el.remove());
+    
         let timeElem = document.createElement('th');
         timeElem.className += ' time'
         timeElem.appendChild(document.createElement('span'));
@@ -254,20 +272,16 @@ class DataVirtualizer{
         humidityElem.className += ' humidity';
         humidityElem.appendChild(document.createElement('span'));
         
-        //todo: bugie
-        let weatherClone, timeClone, maxTempClone, avgTempClone, feelTempClone, minTempClone, humidityClone, date;
-        let i;
-        for (const tr of trElements) {
-            i = 0;
-            for (const td of tr.getElementsByTagName('td')) {
-                if(i++>0){
-                    td.remove();
-                    
-                }
-            }
-        }
+        let windSpeedElem = document.createElement('td');
+        windSpeedElem.className += ' windSpeed';
+        windSpeedElem.appendChild(document.createElement('span'));
 
-        console.log(trElements[1].getElementsByTagName('td').length);
+        let windDegreeElem = document.createElement('td');
+        windDegreeElem.className += ' windDegree';
+        windDegreeElem.appendChild(document.createElement('span'));
+
+        let weatherClone, timeClone, maxTempClone, avgTempClone, feelTempClone, minTempClone,
+            humidityClone, windSpeedClone, windDegreeClone, date;
 
         for(const hour of data.list)
         {
@@ -300,8 +314,15 @@ class DataVirtualizer{
             humidityClone = humidityElem.cloneNode(true);
             humidityClone.getElementsByTagName('span')[0].innerText = hour.main.humidity + '%';
             trElements[6].appendChild(humidityClone);
-        }
 
+            windSpeedClone = windSpeedElem.cloneNode(true);
+            windSpeedClone.getElementsByTagName('span')[0].innerText = hour.wind.speed + 'm/s';
+            trElements[7].appendChild(windSpeedClone);
+
+            windDegreeClone = windDegreeElem.cloneNode(true);
+            windDegreeClone.getElementsByTagName('span')[0].innerText = this.degreeToCompass(hour.wind.deg);
+            trElements[8].appendChild(windDegreeClone);
+        }
     }
 
     calcAvgTempPerDay(data){
@@ -357,6 +378,27 @@ class DataVirtualizer{
         }
 
         return days;
+    }
+
+    degreeToCompass(deg){
+        if(deg < 22.5 || deg > 337.5)
+            return 'N';
+        else if(22.5 < deg && deg < 67.5)
+            return 'NO';
+        else if(67.5 < deg && deg < 112.5)
+            return 'O';
+        else if(112.5 < deg && deg < 157.5)
+            return 'SO';
+        else if(157.5 < deg && deg < 202.5)
+            return 'S';
+        else if(202.5 < deg && deg < 247.5)
+            return 'SW';
+        else if(247,5 < deg && deg < 292.5)
+            return 'W';
+        else if(292,5 < deg && deg < 337.5)
+            return 'NW';
+        else
+            return deg;
     }
 
     chartOption_forecast5Day = [

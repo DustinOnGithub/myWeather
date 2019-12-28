@@ -137,7 +137,6 @@ class ApiHandler{
             case 200:
 
                 let response = JSON.parse(xHttp.response);
-                console.debug(response);
                 return response;
 
             case 401:

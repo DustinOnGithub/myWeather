@@ -49,6 +49,7 @@ nav > ul > li {
     border: solid black 1px;
     padding: 3px;
     border-radius: 6px;
+    margin-bottom: 10px;
 }
 
 #forecast5Days g.ct-series-a > .ct-line{
@@ -100,21 +101,31 @@ nav > ul > li {
     width: 20%;
 }
 
-#forecast24Hours {
+#forecast3HourInterval {
     position: absolute;
     width: calc(100% - 6px - 2px);
     overflow: scroll;
 }
 
-/* #forecast24Hours table{
+/* #forecast3HourInterval table{
     table-layout: fixed;
 }
 
 */
 
-#forecast24Hours span{
+#forecast3HourInterval span{
     text-align: center;
     display: block;
 } 
    
+.maxTemp{
+    color: #ec6e4c;
+}
 
+.minTemp{
+    color: #33337f;
+}
+
+.feelTemp{
+    color: #7373bf;
+}
