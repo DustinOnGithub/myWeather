@@ -21,7 +21,7 @@ class DataVirtualizer{
         }
 
         this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
-        Chart.defaults.global.defaultFontColor = 'black';
+        Chart.defaults.global.defaultFontColor = 'white';
         Chart.defaults.global.defaultFontSize = 15;
         
     }
@@ -42,17 +42,18 @@ class DataVirtualizer{
             calculationTime = new Date(data.dt * 1000);
             sunsetTime = new Date(data.sys.sunset * 1000);
             sunriseTime = new Date(data.sys.sunrise * 1000);
+
+            document.getElementById('currentWeatherImg').src = 'icons/' + data.weather[0].icon+'.png';
             
-            document.getElementById('temp').innerText = 'aktuelle temp: ' + data.main.temp + '° C';
-            document.getElementById('tempMax').innerText = 'max temp: ' + data.main.temp_max + '° C';
-            document.getElementById('tempMin').innerText = 'min temp: ' + data.main.temp_min + '° C';
-            document.getElementById('humidity').innerText = 'Luftfeuchtigkeit: ' + data.main.humidity + " %";
-            document.getElementById('windSpeed').innerText = 'wind speed: ' + data.wind.speed + ' m/s';
-            document.getElementById('windDegree').innerText = 'wind Richtung: ' + data.wind.deg + ' °';
-            document.getElementById('sunrise').innerText = 'Sonnenaufgang: ' + sunriseTime.toTimeString();
-            document.getElementById('sunset').innerText = 'Sonnenuntergang: ' + sunsetTime.toTimeString();
-            document.getElementById('txt').innerText = data.weather[0].description;
-            document.getElementById('time').innerText = 'Zeit: ' + calculationTime.toString()
+            document.getElementById('temp').innerText = data.main.temp + '° C';
+            document.getElementById('tempMax').innerText = data.main.temp_max + '° C';
+            document.getElementById('tempMin').innerText = data.main.temp_min + '° C';
+            document.getElementById('humidity').innerText = data.main.humidity + " %";
+            document.getElementById('windSpeed').innerText = data.wind.speed + ' m/s';
+            document.getElementById('windDegree').innerText = this.degreeToCompass(data.wind.deg);
+            document.getElementById('sunrise').innerText = sunriseTime.toTimeString();
+            document.getElementById('sunset').innerText = sunsetTime.toTimeString();
+            document.getElementById('time').innerText = calculationTime.toTimeString()
         }
     }
 
@@ -244,7 +245,7 @@ class DataVirtualizer{
         let oldElements = document.querySelectorAll("#forecast3HourInterval td");
         oldElements.forEach(el => el.remove());
     
-        let timeElem = document.createElement('th');
+        let timeElem = document.createElement('td');
         timeElem.className += ' time'
         timeElem.appendChild(document.createElement('span'));
 
@@ -413,8 +414,8 @@ class DataVirtualizer{
         {
             label: 'AVG',
             data: [],
-            borderColor:'black',
-            backgroundColor: '#0000008f',
+            borderColor:'white',
+            backgroundColor: '#f5f5f53d',
             borderWidth: 2,
             fill: true
         },

@@ -1,6 +1,8 @@
 *{
     padding: 0;
     margin: 0;
+    color: whitesmoke;
+    border-color: whitesmoke;
 }
 
 body{
@@ -8,6 +10,7 @@ body{
     height: calc(100% - 20px);
     width: calc(100% - 20px);
     margin: 10px;
+    background-color: #393636;
 }
 
 h3{
@@ -46,7 +49,7 @@ nav > ul > li {
 }
 
 .box{
-    border: solid black 1px;
+    border: solid whitesmoke 1px;
     padding: 3px;
     border-radius: 6px;
     margin-bottom: 10px;
@@ -117,15 +120,45 @@ nav > ul > li {
     text-align: center;
     display: block;
 } 
-   
-.maxTemp{
-    color: #ec6e4c;
+
+#tempMin,
+.minTemp,
+.minTemp span{
+    color: #2b2be6;
 }
 
-.minTemp{
-    color: #33337f;
-}
-
-.feelTemp{
+.feelTemp span{
     color: #7373bf;
 }
+
+#tempMax,
+.maxTemp,
+.maxTemp span{
+    color: red;
+}
+
+.canvasHolder {
+    margin-bottom: 37px;
+}
+
+#forecast5Days > table:nth-child(3) {
+    border-top: solid white 2px;
+}
+
+#currentWeather td{
+    font-size: 17px;
+}
+
+#temp{
+    font-size: 35px !important;
+}
+
+#currentWeatherImg {
+    float: right;
+    width: 100px;
+}
+
+td.time{
+    font-weight: bold;
+}
+  

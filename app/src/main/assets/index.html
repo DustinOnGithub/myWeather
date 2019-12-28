@@ -22,16 +22,18 @@
         <nav><ul id="navCities">&nbsp;</ul></nav>
 
         <div id="currentWeather" class="box">
-            <p id="temp"></p>
-            <p id="txt"></p>
-            <p id="tempMax"></p>
-            <p id="tempMin"></p>
-            <p id="humidity"></p>
-            <p id="windSpeed"></p>
-            <p id="windDegree"></p>
-            <p id="sunrise"></p>
-            <p id="sunset"></p>
-            <p id="time"></p>
+            <img src="" id="currentWeatherImg">
+            <table>
+                <tr><td colspan="2" id="temp">&nbsp;</td></tr>
+                <tr><td>Max Temp.:</td><td id="tempMax">&nbsp;</td></tr>
+                <tr><td>Min Temp.:</td><td id="tempMin">&nbsp;</td></tr>
+                <tr><td>Luftfeuchtigkeit:</td><td id="humidity">&nbsp;</td> </tr>
+                <tr><td>Wind Gesch.:</td><td id="windSpeed">&nbsp;</td></tr>
+                <tr><td>Wind Richtung:</td><td id="windDegree">&nbsp;</td></tr>
+                <tr><td>Sonnenaufgang:</td><td id="sunrise">&nbsp;</td></tr>
+                <tr><td>Sonnenuntergang:</td><td id="sunset">&nbsp;</td></tr>
+                <tr><td>Aktualisiert:</td><td id="time">&nbsp;</td></tr>
+            </table>
         </div>
 
         <div id="forecast5Days" class="box">
@@ -120,10 +122,10 @@
                         <th>Hum:</th>
                     </tr>
                     <tr>
-                        <th>Wind:</th>
+                        <th rowspan="2">Wind:</th>
                     </tr>
                     <tr>
-                        <th>Wind:</th>
+                        
                     </tr>
                 </tbody>
             </table>
