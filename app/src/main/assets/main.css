@@ -5,12 +5,17 @@
     border-color: whitesmoke;
 }
 
+html{
+    height: 100%;
+}
+
 body{
     position: absolute;
     height: calc(100% - 20px);
     width: calc(100% - 20px);
     margin: 10px;
-    background-color: #393636;
+    background-image: linear-gradient(0deg, rgba(0,111,156,1) 0%, rgba(0,212,255,1) 100%);
+    background-attachment: fixed !important;
 }
 
 h3{
@@ -18,13 +23,17 @@ h3{
 }
 
 main{
-    display: none;
+    position: absolute;
+    width: 100%;
+    top: 90px;
+    bottom: 0;
+    overflow: scroll;
 }
 
 nav{
-    position: relative;
-    height: 65px;
-    padding-bottom: 20px;
+    position: fixed;
+    height: 80px;
+    width: 100%;
 }
 
 nav > ul{
@@ -35,17 +44,25 @@ nav > ul{
 
 nav > ul > li {
     padding: 10px;
-    border: solid black thin;
+    border: solid white 2px;;
     border-radius: 5px;
     list-style: none;
     margin: 5px;
     display: table-cell;
     position: absolute;
     font-size: 13pt;
+    height: 35px;
+    text-align: center;
+    line-height: 35px;
+}
+
+#forecast3HourIntervalHolder{
+    overflow: scroll;
+    width: calc(100% - 9px);
 }
 
 #selectedCity{
-    background: #ff8b8b;
+    background: #080279;
 }
 
 .box{
@@ -104,18 +121,6 @@ nav > ul > li {
     width: 20%;
 }
 
-#forecast3HourInterval {
-    position: absolute;
-    width: calc(100% - 6px - 2px);
-    overflow: scroll;
-}
-
-/* #forecast3HourInterval table{
-    table-layout: fixed;
-}
-
-*/
-
 #forecast3HourInterval span{
     text-align: center;
     display: block;
@@ -124,11 +129,7 @@ nav > ul > li {
 #tempMin,
 .minTemp,
 .minTemp span{
-    color: #2b2be6;
-}
-
-.feelTemp span{
-    color: #7373bf;
+    color: #020268;
 }
 
 #tempMax,

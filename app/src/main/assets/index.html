@@ -17,9 +17,10 @@
     <div id="loading">
         <p style="font-size: 30px;">loading &#x27f2;...</p>       
     </div>
+    <nav><ul id="navCities"></ul></nav>
 
     <main>
-        <nav><ul id="navCities">&nbsp;</ul></nav>
+        
 
         <div id="currentWeather" class="box">
             <img src="" id="currentWeatherImg">
@@ -98,37 +99,39 @@
         <div id="forecast3HourInterval" class="box">
 
             <h3>Stündliche Vorschau</h3>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Zeit:</th>
-                    </tr>
-                    <tr>
-                        <th>Wetter:</th>
-                    </tr>
-                    <tr>
-                        <th>Max:</th>
-                    </tr>
-                    <tr>
-                        <th>AVG:</th>
-                    </tr>
-                    <tr>
-                        <th>Gef.:</th>
-                    </tr>
-                    <tr>
-                        <th>MIN:</th>
-                    </tr>
-                    <tr>
-                        <th>Hum:</th>
-                    </tr>
-                    <tr>
-                        <th rowspan="2">Wind:</th>
-                    </tr>
-                    <tr>
-                        
-                    </tr>
-                </tbody>
-            </table>
+            <div id="forecast3HourIntervalHolder">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>Zeit:</th>
+                        </tr>
+                        <tr>
+                            <th>Wetter:</th>
+                        </tr>
+                        <tr>
+                            <th>Max:</th>
+                        </tr>
+                        <tr>
+                            <th>AVG:</th>
+                        </tr>
+                        <tr>
+                            <th>Gef.:</th>
+                        </tr>
+                        <tr>
+                            <th>MIN:</th>
+                        </tr>
+                        <tr>
+                            <th>Hum:</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">Wind:</th>
+                        </tr>
+                        <tr>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </body>
