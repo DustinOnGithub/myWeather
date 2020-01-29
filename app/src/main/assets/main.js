@@ -53,42 +53,41 @@ XMLHttpRequest.noCacheStr = function(){
 }
 
 function hideLoadingPage() {
-  document.getElementById('loading').style = 'display: none';
+  let loading = document.getElementById('loading');
+  loading.style = 'display: none;';
+  loading.getElementsByTagName('i')[0].style = 'animation-play-state: paused;';
   document.getElementsByTagName('main')[0].style = 'display: inline';
 }
 
+function displayCities() {
 
-/**
- * using recursion -> using setTimeout 
- * -> enough time for the html to calculate the size of the li
- * there could be a nicer solution with css
- */
-function displayCity(navUl, apiHandler, cityIndex, offset = 0) {
+  let navUl = this.document.getElementById('navCities');
+  let cityData, li, onTouchOrClick;
 
-  let cityData = apiHandler.getCurrentForCity(settings.cities[cityIndex]);
+  for(const city of settings.cities){
+    
+    cityData = apiHandler.getCurrentForCity(city);
 
-  let li = this.document.createElement('li');
-  li.innerHTML = cityData.name;
-  li.setAttribute('cityId', cityData.id);
-  
-  if(offset > 0)
-    li.style.left = offset + "px"; 
-  else
-    li.setAttribute('id', 'selectedCity');
-  
-  li.ontouchend = function(){
-    currentCity = this.getAttribute('cityId');
-    document.getElementById('selectedCity').removeAttribute('id');
-    this.setAttribute('id', 'selectedCity');
-    updateUi(true);
-  };
-  
-  navUl.appendChild(li);
+    li = this.document.createElement('li');
+    li.innerHTML = cityData.name;
+    li.setAttribute('cityId', cityData.id);
 
-  if(++cityIndex < settings.cities.length){
-    setTimeout(function () {
-      displayCity(navUl, apiHandler, cityIndex, offset + li.offsetWidth + 20);
-    },50);
+    if(currentCity == city)
+      li.setAttribute('id', 'selectedCity');
+
+    onTouchOrClick = function(){
+      currentCity = this.getAttribute('cityId');
+      document.getElementById('selectedCity').removeAttribute('id');
+      this.setAttribute('id', 'selectedCity');
+      updateUi(true);
+    };
+
+    if(navigator.userAgent.includes ('wv'))
+      li.ontouchend = onTouchOrClick; // webview, so bind touch event
+    else
+      li.onclick = onTouchOrClick;
+
+    navUl.appendChild(li);
   }
 }
 
@@ -104,15 +103,14 @@ function updateUi(force = false){
 
 window.onload = function(){
 
-  let navUl = this.document.getElementById('navCities');
   currentCity = settings.cities[0];
 
   if(apiHandler.getCurrentWeather() && apiHandler.getForecastWeather()){
     
-    this.displayCity(navUl, apiHandler, 0);
-
-    hideLoadingPage();
+    this.displayCities();
     updateUi();
+    document.getElementsByTagName('main')[0].style = 'display: block';
+    hideLoadingPage();
 
     let updateLoop = setInterval(() => {
       updateUi();
