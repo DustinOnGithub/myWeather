@@ -224,7 +224,7 @@ class DataVirtualizer{
     }
 
     displayForecast3HourInterval(data, force = false){
-        console.log(data);
+        console.debug(data);
         let index = this.cache.findCacheIndex(data.city.id);
 
         if(!force &&

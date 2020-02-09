@@ -2,6 +2,18 @@
  * @var {object} settings
  */
 
+ const DEBUG = !navigator.userAgent.includes ('wv');
+
+if(DEBUG){
+  console.debug = function(){}
+}
+
+/*
+call by coordinate,  neumarkt:
+http://api.openweathermap.org/data/2.5/forecast?lat=49.283333&lon=11.466667&APPID=2d0ef47dd6f57d424a0c05dd812c0170&units=metric&noCache=kxouz
+
+*/
+
 Date.prototype.toString = function(){
   return this.getHours() +':' + this.getMinutes() + ':' + this.getSeconds() + ' ' + this.getDate()+'.'+this.getMonth()+'.'+this.getFullYear();
 };
@@ -61,6 +73,7 @@ function hideLoadingPage() {
 
 function displayCities() {
 
+  document.getElementById('addLocation').className = ';'
   let navUl = this.document.getElementById('navCities');
   let cityData, li, onTouchOrClick;
 
@@ -82,10 +95,10 @@ function displayCities() {
       updateUi(true);
     };
 
-    if(navigator.userAgent.includes ('wv'))
-      li.ontouchend = onTouchOrClick; // webview, so bind touch event
-    else
+    if(DEBUG)
       li.onclick = onTouchOrClick;
+    else
+      li.ontouchend = onTouchOrClick; // webview, so bind touch event
 
     navUl.appendChild(li);
   }
@@ -103,10 +116,75 @@ function updateUi(force = false){
 
 window.onload = function(){
 
-  currentCity = settings.cities[0];
+  let location = {
+    time: false,
+    latitude: 0,
+    longitude: 0,
+    accuracy: 0,
+  }
 
+  if(this.navigator.geolocation) {
+
+    let geolocationSuccess = function(pos){
+      location.time = pos.timestamp;
+      location.latitude = pos.coords.latitude;
+      location.longitude = pos.coords.longitude;
+      location.accuracy = pos.coords.accuracy;
+      if(DEBUG)
+        console.log("location: lat: " + location.latitude + " long: " + location.longitude);
+      else{
+        Android.showToast("lat: " + location.latitude + " long: " + location.longitude);
+      }
+    }
+  
+    let geolocationError = function(err){
+      let message;
+      switch(err.code){
+        case GeolocationPositionError.PERMISSION_DENIED:
+          message = "Keine Berechtigung zur Ortung!";
+          break;
+        case GeolocationPositionError.POSITION_UNAVAILABLE:
+          message = "Ortung nicht möglich!";
+          break;
+        case GeolocationPositionError.TIMEOUT:
+          message = "Timeout bei Ortung";
+          break;
+      }
+      if(DEBUG)
+        console.log("location error: " + message);
+      else
+        Android.showToast(message);
+    }
+
+    navigator.geolocation.watchPosition(geolocationSuccess, geolocationError);
+  }
+  else{
+    if(DEBUG)
+      console.log("no geolocation!");
+    else
+      Android.showToast("no geolocation!");
+  }
+
+  let apiKey = settings.apiKey;
+  if(apiKey){
+    let x = "";
+    for(let i = 0; i < apiKey.length - 16; i++){
+      x += "x";
+    }
+    document.getElementById('apiKey').innerText = apiKey.substr(0, 8) + x + apiKey.substr(-8);
+  } else{
+    document.getElementById('apiKey').innerText = "no api key defined!";
+  }
+
+  currentCity = settings.cities[0];
   if(apiHandler.getCurrentWeather() && apiHandler.getForecastWeather()){
-    
+
+    if(!DEBUG){
+      document.getElementById('addLocation').ontouchend = () => {
+        Android.getCoordinates();
+      };    
+    }
+
     this.displayCities();
     updateUi();
     document.getElementsByTagName('main')[0].style = 'display: block';
