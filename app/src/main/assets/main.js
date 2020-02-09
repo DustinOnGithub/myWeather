@@ -53,9 +53,9 @@ XMLHttpRequest.noCacheStr = function(){
 }
 
 function hideLoadingPage() {
-  let loading = document.getElementById('loading');
-  loading.style = 'display: none;';
-  loading.getElementsByTagName('i')[0].style = 'animation-play-state: paused;';
+  let loadingElem = document.getElementById('loading');
+  loadingElem.style = 'display: none;';
+  loadingElem.getElementsByTagName('div')[0].style = 'animation-play-state: paused;';
   document.getElementsByTagName('main')[0].style = 'display: inline';
 }
 
@@ -120,7 +120,7 @@ window.onload = function(){
     let p = document.createElement('p')
     p.innerText = "No weather data available!";
     p.style = 'color: red;';
-    document.getElementById('name').appendChild(p);
-    this.hideLoadingPage();
+    document.getElementsByTagName('main')[0].appendChild(p);
+    document.hideLoadingPage();
   }
 }

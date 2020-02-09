@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>MyWeather</title>
     <script src="Chart.min.js"></script>
     <script type="text/javascript" src="settings.js" ></script>
@@ -15,7 +17,7 @@
 
 <body>
     <div id="loading">
-        <p style="font-size: 30px;">Loading <i>&#x27f2;</i></p>       
+        <p style="font-size: 30px;">Loading <div class="loader"></div></p>       
     </div>
     <nav><ul id="navCities"></ul></nav>
 
@@ -133,6 +135,7 @@
                 </table>
             </div>
         </div>
+        <p id="apiKey">&nbsp;</span>
     </main>
 </body>
 
