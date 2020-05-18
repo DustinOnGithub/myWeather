@@ -6,18 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>MyWeather</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="Chart.min.css">
     <script src="Chart.min.js"></script>
     <script type="text/javascript" src="settings.js" ></script>
     <script type="text/javascript" src="apiHandler.js" ></script>
     <script type="text/javascript" src="dataVirtualizer.js" ></script>
+    <script type="text/javascript" src="locationManager.js" ></script>
     <script type="text/javascript" src="main.js" defer></script>
-    <link rel="stylesheet" href="Chart.min.css">
-    <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
     <div id="loading">
-        <p style="font-size: 30px;">Loading <div class="loader"></div></p>       
+        <p style="font-size: 30px;">Loading <div class="loader"></div></p>
     </div>
     <nav>
         <ul id="navCities">
@@ -26,7 +27,6 @@
     </nav>
 
     <main>
-        
 
         <div id="currentWeather" class="box">
             <img src="" id="currentWeatherImg">
@@ -57,9 +57,11 @@
                         <td><span class="day">&nbsp;</span></td>
                         <td><span class="day">&nbsp;</span></td>
                         <td><span class="day">&nbsp;</span></td>
+                        <td><span class="day">&nbsp;</span></td>
                     </tr>
                     <tr>
-                        <th>Wetter</th>
+                        <th>Wetter:</th>
+                        <td> <img src="" alt=""> </td>
                         <td> <img src="" alt=""> </td>
                         <td> <img src="" alt=""> </td>
                         <td> <img src="" alt=""> </td>
@@ -73,9 +75,11 @@
                         <td><span class="maxTemp">&nbsp;</span></td>
                         <td><span class="maxTemp">&nbsp;</span></td>
                         <td><span class="maxTemp">&nbsp;</span></td>
+                        <td><span class="maxTemp">&nbsp;</span></td>
                     </tr>
                     <tr>
                         <th>AVG:</th>
+                        <td><span class="avgTemp">&nbsp;</span></td>
                         <td><span class="avgTemp">&nbsp;</span></td>
                         <td><span class="avgTemp">&nbsp;</span></td>
                         <td><span class="avgTemp">&nbsp;</span></td>
@@ -89,9 +93,11 @@
                         <td><span class="minTemp">&nbsp;</span></td>
                         <td><span class="minTemp">&nbsp;</span></td>
                         <td><span class="minTemp">&nbsp;</span></td>
+                        <td><span class="minTemp">&nbsp;</span></td>
                     </tr>
                     <tr>
                         <th>Hum:</th>
+                        <td><span class="humidity">&nbsp;</span></td>
                         <td><span class="humidity">&nbsp;</span></td>
                         <td><span class="humidity">&nbsp;</span></td>
                         <td><span class="humidity">&nbsp;</span></td>
@@ -101,7 +107,7 @@
                 </tbody>
             </table>
         </div>
-
+<!-- todo: do this with grids -->
         <div id="forecast3HourInterval" class="box">
 
             <h3>Stündliche Vorschau</h3>

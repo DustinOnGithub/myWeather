@@ -2,9 +2,9 @@
  * @var {object} settings
  */
 
- const DEBUG = !navigator.userAgent.includes ('wv');
+ const DEBUG = settings.debug && !navigator.userAgent.includes ('wv');
 
-if(DEBUG){
+if(!DEBUG){
   console.debug = function(){}
 }
 
@@ -29,7 +29,12 @@ Date.prototype.toDayAndTimeString = function () {
   return this.toGermanDayShort()+' '+this.toTimeString();
 }
 
-Date.prototype.toGermanDayShort = function () {
+Date.prototype.toGermanDayShort = function (useToday = false) {
+
+  if(useToday && this.getDay() == new Date().getDay()){
+    return 'Heute';
+  }
+
   switch(this.getDay()){
     case 0: return 'Son';
     case 1: return 'Mon';
@@ -116,55 +121,6 @@ function updateUi(force = false){
 
 window.onload = function(){
 
-  let location = {
-    time: false,
-    latitude: 0,
-    longitude: 0,
-    accuracy: 0,
-  }
-
-  if(this.navigator.geolocation) {
-
-    let geolocationSuccess = function(pos){
-      location.time = pos.timestamp;
-      location.latitude = pos.coords.latitude;
-      location.longitude = pos.coords.longitude;
-      location.accuracy = pos.coords.accuracy;
-      if(DEBUG)
-        console.log("location: lat: " + location.latitude + " long: " + location.longitude);
-      else{
-        Android.showToast("lat: " + location.latitude + " long: " + location.longitude);
-      }
-    }
-  
-    let geolocationError = function(err){
-      let message;
-      switch(err.code){
-        case GeolocationPositionError.PERMISSION_DENIED:
-          message = "Keine Berechtigung zur Ortung!";
-          break;
-        case GeolocationPositionError.POSITION_UNAVAILABLE:
-          message = "Ortung nicht möglich!";
-          break;
-        case GeolocationPositionError.TIMEOUT:
-          message = "Timeout bei Ortung";
-          break;
-      }
-      if(DEBUG)
-        console.log("location error: " + message);
-      else
-        Android.showToast(message);
-    }
-
-    navigator.geolocation.watchPosition(geolocationSuccess, geolocationError);
-  }
-  else{
-    if(DEBUG)
-      console.log("no geolocation!");
-    else
-      Android.showToast("no geolocation!");
-  }
-
   let apiKey = settings.apiKey;
   if(apiKey){
     let x = "";
@@ -179,10 +135,13 @@ window.onload = function(){
   currentCity = settings.cities[0];
   if(apiHandler.getCurrentWeather() && apiHandler.getForecastWeather()){
 
-    if(!DEBUG){
-      document.getElementById('addLocation').ontouchend = () => {
-        Android.getCoordinates();
-      };    
+    if("geolocation" in this.navigator) {
+      let locationManager = new LocationManager();
+      locationManager.addLocationEvent();
+    }
+    else{
+      if(DEBUG) console.log("no geolocation!");
+      else      Android.showToast("Standortzugriff ist nicht möglich!");
     }
 
     this.displayCities();
@@ -195,10 +154,16 @@ window.onload = function(){
     }, 5000);
   }
   else{
-    let p = document.createElement('p')
+    let p = document.createElement('p');
     p.innerText = "No weather data available!";
     p.style = 'color: red;';
     document.getElementsByTagName('main')[0].appendChild(p);
     document.hideLoadingPage();
   }
+}
+
+//-------- kotlin -> js interface:
+function setCoordinates(latitude, longitude){
+  console.log("coordinate: " + latitude);
+  document.getElementById('coordinates').innerText = "coordinates: " + latitude + " - " + longitude;
 }

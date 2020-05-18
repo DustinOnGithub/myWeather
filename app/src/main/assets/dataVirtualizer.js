@@ -129,40 +129,37 @@ class DataVirtualizer{
         for(item = 0; item < data.list.length; item++){
             time = new Date(data.list[item].dt * 1000);
 
-            //skip current day
-            if(today.getDay() != time.getDay()){
-                dIndex = days.findDayIndex(time);
+            dIndex = days.findDayIndex(time);
 
-                if(dIndex == -1){
-                    days.push({
-                        day: time.getDay(),
-                        time: time,
-                        weathers: [],
-                        avgWeather: '',
-                        avgIcon: ''
-                    });
-                    dIndex = days.length - 1;
-                }
-
-                wIndex = days[dIndex].weathers.findWeatherIndex(data.list[item].weather[0].main);
-                
-                if(wIndex == -1){
-                    days[dIndex].weathers.push(
-                        {
-                            main: '',
-                            description: '',
-                            icon: '',
-                            number: 0
-                        }
-                    );
-                    wIndex = days[dIndex].weathers.length - 1;
-                    days[dIndex].weathers[wIndex].main = data.list[item].weather[0].main;
-                    days[dIndex].weathers[wIndex].description = data.list[item].weather[0].description;
-                    days[dIndex].weathers[wIndex].icon = parseInt(data.list[item].weather[0].icon);
-                }
-
-                days[dIndex].weathers[wIndex].number++;
+            if(dIndex == -1){
+                days.push({
+                    day: time.getDay(),
+                    time: time,
+                    weathers: [],
+                    avgWeather: '',
+                    avgIcon: ''
+                });
+                dIndex = days.length - 1;
             }
+
+            wIndex = days[dIndex].weathers.findWeatherIndex(data.list[item].weather[0].main);
+            
+            if(wIndex == -1){
+                days[dIndex].weathers.push(
+                    {
+                        main: '',
+                        description: '',
+                        icon: '',
+                        number: 0
+                    }
+                );
+                wIndex = days[dIndex].weathers.length - 1;
+                days[dIndex].weathers[wIndex].main = data.list[item].weather[0].main;
+                days[dIndex].weathers[wIndex].description = data.list[item].weather[0].description;
+                days[dIndex].weathers[wIndex].icon = parseInt(data.list[item].weather[0].icon);
+            }
+
+            days[dIndex].weathers[wIndex].number++;
         }
 
         //get the weather with the highest count and display the icon for it:)
@@ -185,7 +182,7 @@ class DataVirtualizer{
 
             trElements[0]
                 .getElementsByClassName('day')[i+1]
-                .innerText = day.time.toGermanDayShort();
+                .innerText = day.time.toGermanDayShort(true);
 
             trElements[1]
                 .getElementsByTagName('td')[i]
@@ -201,23 +198,23 @@ class DataVirtualizer{
             trElements[2]
                 .getElementsByTagName('td')[i]
                 .getElementsByClassName('maxTemp')[0]
-                .innerText = day.temp_max + '°';
+                .innerText = Math.round(day.temp_max) + '°';
 
             trElements[3]
                 .getElementsByTagName('td')[i]
                 .getElementsByClassName('avgTemp')[0]
-                .innerText = day.temp + '°';
+                .innerText = Math.round(day.temp) + '°';
 
             trElements[4]
                 .getElementsByTagName('td')[i]
                 .getElementsByClassName('minTemp')[0]
-                .innerText = day.temp_min + '°';
+                .innerText = Math.round(day.temp_min) + '°';
     
 
             trElements[5]
                 .getElementsByTagName('td')[i]
                 .getElementsByClassName('humidity')[0]
-                .innerText = Math.round(day.humidity) + ' %';
+                .innerText = Math.round(day.humidity) + '%';
             i++;
         }
 
@@ -332,42 +329,38 @@ class DataVirtualizer{
         for(item = 0; item < data.list.length; item++){
             time = new Date(data.list[item].dt * 1000);
 
-            //skip current day
-            if(today.getDay() != time.getDay()){
+            index = days.findIndex((day) => {
+                return day.day == time.getDay();
+            });
 
-                index = days.findIndex((day) => {
-                    return day.day == time.getDay();
+            index = days.findDayIndex(time);
+
+            if(index == -1){
+                days.push({
+                    day: time.getDay(),
+                    dayString: time.toGermanDayShort(true),
+                    numberOfData: 0,
+                    temp: 0,
+                    temp_min: 100,
+                    temp_max: 0,
+                    pressure: 0,
+                    sea_level: 0,
+                    grnd_level: 0,
+                    humidity: 0,
                 });
-
-                index = days.findDayIndex(time);
-
-                if(index == -1){
-                    days.push({
-                        day: time.getDay(),
-                        dayString: time.toGermanDayShort(),
-                        numberOfData: 0,
-                        temp: 0,
-                        temp_min: 100,
-                        temp_max: 0,
-                        pressure: 0,
-                        sea_level: 0,
-                        grnd_level: 0,
-                        humidity: 0,
-                    });
-                    index = days.length - 1;
-                }
-                
-                days[index].numberOfData++;
-                days[index].temp += data.list[item].main.temp * 100;
-                if(days[index].temp_min > data.list[item].main.temp_min)
-                    days[index].temp_min = data.list[item].main.temp_min;
-                if(days[index].temp_max < data.list[item].main.temp_max)
-                    days[index].temp_max = data.list[item].main.temp_max;
-                days[index].pressure += data.list[item].main.pressure;
-                days[index].sea_level += data.list[item].main.sea_level;
-                days[index].grnd_level += data.list[item].main.grnd_level;
-                days[index].humidity += data.list[item].main.humidity;
+                index = days.length - 1;
             }
+            
+            days[index].numberOfData++;
+            days[index].temp += data.list[item].main.temp * 100;
+            if(days[index].temp_min > data.list[item].main.temp_min)
+                days[index].temp_min = data.list[item].main.temp_min;
+            if(days[index].temp_max < data.list[item].main.temp_max)
+                days[index].temp_max = data.list[item].main.temp_max;
+            days[index].pressure += data.list[item].main.pressure;
+            days[index].sea_level += data.list[item].main.sea_level;
+            days[index].grnd_level += data.list[item].main.grnd_level;
+            days[index].humidity += data.list[item].main.humidity;
         }
 
         for(index = 0; index < days.length; index++){

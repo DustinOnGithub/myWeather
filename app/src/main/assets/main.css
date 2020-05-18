@@ -142,10 +142,6 @@ nav > ul > li {
     width: 100%;
 }
 
-#forecast5Days tbody td{
-    width: 20%;
-}
-
 #forecast3HourInterval span{
     text-align: center;
     display: block;
