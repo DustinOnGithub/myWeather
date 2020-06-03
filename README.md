@@ -10,5 +10,5 @@
 * nicer design
 * search, add and save locations
 * api-key adjustable by the ui
-* display only usefull informations
+* display only useful information
 * fix the typo in weather!!!
