@@ -82,6 +82,8 @@ class DataVirtualizer{
         }
     }
 
+    
+
     displayForecast5Days_chart (data){
         let days, i = 0, labels = [], datasets;
 

@@ -19,7 +19,11 @@ class ApiHandler{
                         lastUpdate: false,
                         data: {}
                     },
-                    forecast: {
+                    forecastHourly: {
+                        lastUpdate: false,
+                        data: {}
+                    },
+                    forecastDaily: {
                         lastUpdate: false,
                         data: {}
                     }
@@ -81,11 +85,11 @@ class ApiHandler{
         return success;
     }
 
-    getForecastWeather() {
+    getHourlyForecastWeather() {
         let i = 0, xHttp, self = this, success = false, response;
 
-        if(!this.cache[i].forecast.lastUpdate || 
-            ((new Date().getTime() - this.cache[i].forecast.lastUpdate) 
+        if(!this.cache[i].forecastHourly.lastUpdate || 
+            ((new Date().getTime() - this.cache[i].forecastHourly.lastUpdate) 
                 > UPDATE_INTERVAL
             )
         ){
@@ -96,9 +100,9 @@ class ApiHandler{
                     
                     if(response = self.handleResponse(this)){
                         if(self.cache[i].city == response.city.id){
-                            self.cache[i].forecast.lastUpdate = new Date().getTime();
-                            self.cache[i].forecast.data = response;
-                            console.debug("updated forecast weather cache for city '" + self.cache[i].current.data.name + "'!");
+                            self.cache[i].forecastHourly.lastUpdate = new Date().getTime();
+                            self.cache[i].forecastHourly.data = response;
+                            console.debug("updated hourly forecast weather cache for city '" + self.cache[i].current.data.name + "'!");
                             success = true;
                         }
                     }
@@ -113,19 +117,78 @@ class ApiHandler{
             }
         }
         else{
-            console.debug("forecast weather for city '" + this.cache[i].current.data.name + "' already cached!");
+            console.debug("hourly forecast weather for city '" + this.cache[i].current.data.name + "' already cached!");
         }
 
         return success;
     }
 
-    getForecastForCity(cityId){
-        let k;
-        this.getForecastWeather();
+    getDailyForecast(){
+        let i = 0, xHttp, self = this, success = false;
+
+        for(; i < this.cities.length; i++){
+            
+            if(!this.cache[i].forecastDaily.lastUpdate || 
+                ((new Date().getTime() - new Date(this.cache[i].forecastDaily.lastUpdate).getTime()) 
+                    > UPDATE_INTERVAL
+                )
+            ){
+                xHttp = new XMLHttpRequest();
+
+                xHttp.onload = function() {
+                    let response;
+                    console.log(response);
+                    if(response = self.handleResponse(this)){
+                        if(self.cache[i].city == response.id){
+                            self.cache[i].forecastDaily.lastUpdate = response.dt * 1000;
+                            self.cache[i].forecastDaily.data = response;
+                            console.debug("updated daily forecast weather cache for city '" + self.cache[i].current.data.name + "'!");
+                            success = true;
+                        }
+                    }
+                    else{
+                        console.debug("api request failed! no daily forecast weather!");
+                    }
+                };
+
+                xHttp.open(
+                    "GET", 
+                    "http://api.openweathermap.org/data/2.5/forecast/onecall?"
+                        +"APPID="+settings.apiKey
+                        +"&id="+ settings.cities[i] 
+                        +"&units=metric"
+                        +"&exclude=hourly,current,minutely"
+                        + XMLHttpRequest.noCacheStr(), 
+                    false //no async!
+                );
+                xHttp.send();
+            }
+            else{
+                console.debug("daily forecast weather for city '" + this.cache[i].current.data.name + "' already cached!");
+            }
+        }
+        return success;
+    }
+
+getDailyForecastForCity(cityId){
+        let k;  
+        this.getDailyForecast();
 
         for(k = 0; k < this.cache.length; k++){
             if(this.cache[k].city == cityId){
-                return this.cache[k].forecast.data;
+                return this.cache[k].forecastDaily.data;
+            }
+        }
+        return false;
+    }
+
+    getHourlyForecastForCity(cityId){
+        let k;
+        this.getHourlyForecastWeather();
+
+        for(k = 0; k < this.cache.length; k++){
+            if(this.cache[k].city == cityId){
+                return this.cache[k].forecastHourly.data;
             }
         }
         return false;

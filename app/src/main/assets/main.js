@@ -115,8 +115,8 @@ let currentCity;
 
 function updateUi(force = false){
   dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity), force);
-  dataVirtualizer.displayForecast5Days(apiHandler.getForecastForCity(currentCity), force);
-  dataVirtualizer.displayForecast3HourInterval(apiHandler.getForecastForCity(currentCity), force);
+  dataVirtualizer.displayForecast5Days(apiHandler.getDailyForecastForCity(currentCity), force);
+  dataVirtualizer.displayForecast3HourInterval(apiHandler.getHourlyForecastForCity(currentCity), force);
 }
 
 window.onload = function(){
@@ -133,9 +133,9 @@ window.onload = function(){
   }
 
   currentCity = settings.cities[0];
-  if(apiHandler.getCurrentWeather() && apiHandler.getForecastWeather()){
+  if(apiHandler.getCurrentWeather() && apiHandler.getDailyForecast() && apiHandler.getHourlyForecast()){
 
-    if("geolocation" in this.navigator) {
+  if("geolocation" in this.navigator) {
       let locationManager = new LocationManager();
       locationManager.addLocationEvent();
     }
@@ -158,7 +158,7 @@ window.onload = function(){
     p.innerText = "No weather data available!";
     p.style = 'color: red;';
     document.getElementsByTagName('main')[0].appendChild(p);
-    document.hideLoadingPage();
+    hideLoadingPage();
   }
 }
 
