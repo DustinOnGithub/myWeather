@@ -32,11 +32,12 @@
             <img src="" id="currentWeatherImg">
             <table>
                 <tr><td colspan="2" id="temp">&nbsp;</td></tr>
-                <tr><td>Max Temp.:</td><td id="tempMax">&nbsp;</td></tr>
-                <tr><td>Min Temp.:</td><td id="tempMin">&nbsp;</td></tr>
-                <tr><td>Luftfeuchtigkeit:</td><td id="humidity">&nbsp;</td> </tr>
+                <tr><td>Gefühlte Temp.:</td><td id="feelsLike">&nbsp;</td></tr>
                 <tr><td>Wind Gesch.:</td><td id="windSpeed">&nbsp;</td></tr>
                 <tr><td>Wind Richtung:</td><td id="windDegree">&nbsp;</td></tr>
+                <tr><td>UV Index:<td id="uvi">&nbsp;</td></td></tr>
+                <tr><td>Luftfeuchtigkeit:</td><td id="humidity">&nbsp;</td> </tr>
+                <tr><td>Luftdruck:</td><td id="pressure">&nbsp;</td></tr>
                 <tr><td>Sonnenaufgang:</td><td id="sunrise">&nbsp;</td></tr>
                 <tr><td>Sonnenuntergang:</td><td id="sunset">&nbsp;</td></tr>
                 <tr><td>Aktualisiert:</td><td id="time">&nbsp;</td></tr>
@@ -67,9 +68,11 @@
                         <td> <img src="" alt=""> </td>
                         <td> <img src="" alt=""> </td>
                         <td> <img src="" alt=""> </td>
+                        <td> <img src="" alt=""> </td>
                     </tr>
                     <tr>
                         <th>Max:</th>
+                        <td><span class="maxTemp">&nbsp;</span></td>
                         <td><span class="maxTemp">&nbsp;</span></td>
                         <td><span class="maxTemp">&nbsp;</span></td>
                         <td><span class="maxTemp">&nbsp;</span></td>
@@ -85,6 +88,7 @@
                         <td><span class="avgTemp">&nbsp;</span></td>
                         <td><span class="avgTemp">&nbsp;</span></td>
                         <td><span class="avgTemp">&nbsp;</span></td>
+                        <td><span class="avgTemp">&nbsp;</span></td>
                     </tr>
                     <tr>
                         <th>MIN:</th>
@@ -94,9 +98,11 @@
                         <td><span class="minTemp">&nbsp;</span></td>
                         <td><span class="minTemp">&nbsp;</span></td>
                         <td><span class="minTemp">&nbsp;</span></td>
+                        <td><span class="minTemp">&nbsp;</span></td>
                     </tr>
                     <tr>
                         <th>Hum:</th>
+                        <td><span class="humidity">&nbsp;</span></td>
                         <td><span class="humidity">&nbsp;</span></td>
                         <td><span class="humidity">&nbsp;</span></td>
                         <td><span class="humidity">&nbsp;</span></td>

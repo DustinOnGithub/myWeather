@@ -2,7 +2,7 @@
  * @var {object} settings
  */
 
- const DEBUG = settings.debug && !navigator.userAgent.includes ('wv');
+ const DEBUG = cache.debug && !navigator.userAgent.includes ('wv');
 
 if(!DEBUG){
   console.debug = function(){}
@@ -10,129 +10,42 @@ if(!DEBUG){
 
 /*
 call by coordinate,  neumarkt:
-http://api.openweathermap.org/data/2.5/forecast?lat=49.283333&lon=11.466667&APPID=2d0ef47dd6f57d424a0c05dd812c0170&units=metric&noCache=kxouz
+http://api.openweathermap.org/data/2.5/forecast?lat=49.283333&lon=11.466667&APPID=key&units=metric&noCache=kxouz
 
 */
 
-Date.prototype.toString = function(){
-  return this.getHours() +':' + this.getMinutes() + ':' + this.getSeconds() + ' ' + this.getDate()+'.'+this.getMonth()+'.'+this.getFullYear();
-};
-
-Date.prototype.toTimeString = function(){
-  let hours = this.getHours(), minutes = this.getMinutes();
-  hours = hours < 10 ? ('0'+hours) : hours;
-  minutes = minutes < 10 ? ('0'+minutes) : minutes;
-  return hours +':' + minutes;
-};
-
-Date.prototype.toDayAndTimeString = function () {
-  return this.toGermanDayShort()+' '+this.toTimeString();
-}
-
-Date.prototype.toGermanDayShort = function (useToday = false) {
-
-  if(useToday && this.getDay() == new Date().getDay()){
-    return 'Heute';
-  }
-
-  switch(this.getDay()){
-    case 0: return 'Son';
-    case 1: return 'Mon';
-    case 2: return 'Die';
-    case 3: return 'Mit';
-    case 4: return 'Don';
-    case 5: return 'Fre';
-    case 6: return 'Sam';
-    default: return 'undefined';
-  }
-};
-
-Array.prototype.findWeatherIndex = function (weather) {
-  return this.findIndex((item) => {
-    return item.main == weather;
-  });
-}
-
-Array.prototype.findDayIndex = function (currentTime){
-  return this.findIndex((item) => {
-      return item.day == currentTime.getDay();
-  });
-}
-
-Array.prototype.findCacheIndex = function (city) {
-  return this.findIndex((item) => {
-    return item.city == city;
-  });
-}
-
-XMLHttpRequest.noCacheStr = function(){
-  return '&noCache=' + Math.random().toString(36).substring(7);
-}
-
-function hideLoadingPage() {
-  let loadingElem = document.getElementById('loading');
-  loadingElem.style = 'display: none;';
-  loadingElem.getElementsByTagName('div')[0].style = 'animation-play-state: paused;';
-  document.getElementsByTagName('main')[0].style = 'display: inline';
-}
-
-function displayCities() {
-
-  document.getElementById('addLocation').className = ';'
-  let navUl = this.document.getElementById('navCities');
-  let cityData, li, onTouchOrClick;
-
-  for(const city of settings.cities){
-    
-    cityData = apiHandler.getCurrentForCity(city);
-
-    li = this.document.createElement('li');
-    li.innerHTML = cityData.name;
-    li.setAttribute('cityId', cityData.id);
-
-    if(currentCity == city)
-      li.setAttribute('id', 'selectedCity');
-
-    onTouchOrClick = function(){
-      currentCity = this.getAttribute('cityId');
-      document.getElementById('selectedCity').removeAttribute('id');
-      this.setAttribute('id', 'selectedCity');
-      updateUi(true);
-    };
-
-    if(DEBUG)
-      li.onclick = onTouchOrClick;
-    else
-      li.ontouchend = onTouchOrClick; // webview, so bind touch event
-
-    navUl.appendChild(li);
-  }
-}
-
-let apiHandler = new ApiHandler();
-let dataVirtualizer = new DataVirtualizer();
 let currentCity;
-
-function updateUi(force = false){
-  dataVirtualizer.displayCurrentWeather(apiHandler.getCurrentForCity(currentCity), force);
-  dataVirtualizer.displayForecast5Days(apiHandler.getDailyForecastForCity(currentCity), force);
-  dataVirtualizer.displayForecast3HourInterval(apiHandler.getHourlyForecastForCity(currentCity), force);
-}
 
 window.onload = function(){
 
-  let apiKey = settings.apiKey;
-  if(apiKey){
-    let x = "";
-    for(let i = 0; i < apiKey.length - 16; i++){
-      x += "x";
-    }
-    document.getElementById('apiKey').innerText = apiKey.substr(0, 8) + x + apiKey.substr(-8);
+  let dom = new Dom();
+  let apiHandler = new ApiHandler();
+
+  if(cache.apiKey){
+    document.getElementById('apiKey').innerText = `${cache.apiKey.substr(0, 6)}...${cache.apiKey.substr(-6)}`;
   } else{
-    document.getElementById('apiKey').innerText = "no api key defined!";
+    document.getElementById('apiKey').innerText = "Kein API-Key hinterlegt!";
   }
 
-  currentCity = settings.cities[0];
+  let request = apiHandler.oneCall(cache.cities[0]);
+
+  //to complicated?
+  function waitAndDisplay() {
+    if(request.readyState != XMLHttpRequest.DONE){
+      setTimeout(waitAndDisplay, 20);
+    }else{
+      dom.hideLoadingPage();
+      dom.update();
+      setInterval(() => {dom.update()}, 3000); //i can't pass the function by reference, otherwise 'this' is not accessible in the function itself
+    }
+  }
+  
+  waitAndDisplay();
+  
+
+  return;
+
+  currentCity = cache.cities[0];
   if(apiHandler.getCurrentWeather() && apiHandler.getDailyForecast() && apiHandler.getHourlyForecast()){
 
   if("geolocation" in this.navigator) {
@@ -144,10 +57,10 @@ window.onload = function(){
       else      Android.showToast("Standortzugriff ist nicht möglich!");
     }
 
-    this.displayCities();
+    Dom.displayCities();
     updateUi();
     document.getElementsByTagName('main')[0].style = 'display: block';
-    hideLoadingPage();
+    Dom.hideLoadingPage();
 
     let updateLoop = setInterval(() => {
       updateUi();
@@ -158,7 +71,7 @@ window.onload = function(){
     p.innerText = "No weather data available!";
     p.style = 'color: red;';
     document.getElementsByTagName('main')[0].appendChild(p);
-    hideLoadingPage();
+    Dom.hideLoadingPage();
   }
 }
 

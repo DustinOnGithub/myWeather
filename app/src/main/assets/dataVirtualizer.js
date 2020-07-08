@@ -1,90 +1,108 @@
-class DataVirtualizer{
+class Dom{
 
     constructor(){
-        let i;
-        this.cache = [];
-        
+
+        this.modifyStdClasses();
         this.currentCity = false;
-        for(i = 0; i < settings.cities.length; i++){
-            this.cache.push({
-                city: settings.cities[i],
-                current: {
-                    lastUpdate: false
-                },
-                forecast: {
-                    lastUpdate: false
-                },
-                forecast3HourInterval:{
-                    lastUpdate: false
-                }
-            });
-        }
+        this.page = 0;
 
         this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
         Chart.defaults.global.defaultFontColor = 'white';
         Chart.defaults.global.defaultFontSize = 15;
-        
     }
 
-    displayCurrentWeather(data, force = false){
-        let calculationTime, sunsetTime, sunriseTime, cacheIndex;
- 
-        cacheIndex = this.cache.findCacheIndex(data.id);
+    update(){
+        this.displayCurrentWeather();
+        this.displayForecast5Days();
+    }
 
-        //only update gui if data is also updated
-        if(force ||
-            this.currentCity != data.id ||
-            !this.cache[cacheIndex].current.lastUpdate || this.cache[cacheIndex].current.lastUpdate < data.dt){
+    dataReady(){
+        return cache.cities[this.page].current.dt !== false; //the first api call has not finished
+    }
 
-            this.currentCity = data.id;
-            this.cache[cacheIndex].current.lastUpdate = data.dt;
+    displayCurrentWeather(force = false){
+        if(!this.dataReady()) return;
 
-            calculationTime = new Date(data.dt * 1000);
-            sunsetTime = new Date(data.sys.sunset * 1000);
-            sunriseTime = new Date(data.sys.sunrise * 1000);
+        let  current = cache.cities[this.page].current
+            ,calculationTime = new Date(current.dt * 1000)
+            ,sunsetTime = new Date(current.sunset * 1000)
+            ,sunriseTime = new Date(current.sunrise * 1000)
+        ;
 
-            document.getElementById('currentWeatherImg').src = 'icons/' + data.weather[0].icon+'.png';
+        document.getElementById('currentWeatherImg').src = 'icons/' + current.weather[0].icon+'.png';
+        document.getElementById('temp').innerText = current.temp + '° C';
+        document.getElementById('feelsLike').innerText = current.feels_like + '° C';
+        document.getElementById('uvi').innerText = current.uvi;
+        document.getElementById('pressure').innerText = current.pressure + " hPa";
+        document.getElementById('humidity').innerText = current.humidity + " %";
+        document.getElementById('windSpeed').innerText = current.wind_speed + ' m/s';
+        document.getElementById('windDegree').innerText = this.degreeToCompass(current.wind_deg);
+        document.getElementById('sunrise').innerText = sunriseTime.toTimeString();
+        document.getElementById('sunset').innerText = sunsetTime.toTimeString();
+        document.getElementById('time').innerText = calculationTime.toTimeString();
+    }
+
+    displayForecast5Days(data, force = false){ //todo: rename. no more 5 days. 7!
+        if(!this.dataReady()) return;
+
+        let daily = cache.cities[this.page].daily;
+        let trElements = 
+            document.getElementById('forecast5Days')
+            .getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        let i = 0;
+        let date = undefined;
+        let run = 0;
+
+        for(const day of daily){
             
-            document.getElementById('temp').innerText = data.main.temp + '° C';
-            document.getElementById('tempMax').innerText = data.main.temp_max + '° C';
-            document.getElementById('tempMin').innerText = data.main.temp_min + '° C';
-            document.getElementById('humidity').innerText = data.main.humidity + " %";
-            document.getElementById('windSpeed').innerText = data.wind.speed + ' m/s';
-            document.getElementById('windDegree').innerText = this.degreeToCompass(data.wind.deg);
-            document.getElementById('sunrise').innerText = sunriseTime.toTimeString();
-            document.getElementById('sunset').innerText = sunsetTime.toTimeString();
-            document.getElementById('time').innerText = calculationTime.toTimeString()
-        }
-    }
+            if(run++ == 0) continue;
 
-    displayForecastWeather(data){
-        
-    }
+            date = new Date(day.dt*1000);
+            console.log(day);
 
-    displayForecast5Days(data, force = false){
+            trElements[0]
+                .getElementsByClassName('day')[i]
+                .innerText = date.toGermanDayShort(true);
 
-        let index = this.cache.findCacheIndex(data.city.id);
+            
+            trElements[1]
+                .getElementsByTagName('td')[i]
+                .getElementsByTagName('img')[0]
+                .src = 'icons/'+day.weather[0].icon+'d.png';
 
-        //only update gui if data is also updated
-        if(force ||
-            this.currentCity != data.city.id ||
-            !this.cache[index].forecast.lastUpdate || 
-            this.cache[index].forecast.lastUpdate < data.list[0].dt
-        ){
+            trElements[2]
+                .getElementsByTagName('td')[i]
+                .getElementsByClassName('maxTemp')[0]
+                .innerText = Math.round(day.temp.max) + '°';
 
-            this.currentCity = data.city.id;
-            this.cache[index].forecast.lastUpdate = data.list[0].dt;
+                trElements[3]
+                .getElementsByTagName('td')[i]
+                .getElementsByClassName('avgTemp')[0] //todo: this not the avg temp!
+                .innerText = Math.round(day.temp.day) + '°';
 
-            console.debug('update forecast gui');
 
-            this.displayForecast5Days_chart(data);
-            this.displayForecast5Days_table(data);
+            trElements[4]
+                .getElementsByTagName('td')[i]
+                .getElementsByClassName('minTemp')[0]
+                .innerText = Math.round(day.temp.min) + '°';
+
+            trElements[5]
+                .getElementsByTagName('td')[i]
+                .getElementsByClassName('humidity')[0]
+                .innerText = day.humidity + '%';
+
+            //todo: display more information like uv-index
+
+            i++;
+            
         }
     }
 
     
 
     displayForecast5Days_chart (data){
+        return;
+        
         let days, i = 0, labels = [], datasets;
 
         // 'clone' object:
@@ -125,6 +143,7 @@ class DataVirtualizer{
 
     displayForecast5Days_table (data){
 
+        return;
         let item, time, dIndex, wIndex, days = [], today = new Date(), avgWeather;
 
         //count the weather types per day
@@ -223,6 +242,8 @@ class DataVirtualizer{
     }
 
     displayForecast3HourInterval(data, force = false){
+        return;
+        
         console.debug(data);
         let index = this.cache.findCacheIndex(data.city.id);
 
@@ -326,6 +347,8 @@ class DataVirtualizer{
     }
 
     calcAvgTempPerDay(data){
+
+        return;
         let item, index, days = [], today = new Date(), time;
 
         for(item = 0; item < data.list.length; item++){
@@ -397,6 +420,52 @@ class DataVirtualizer{
             return deg;
     }
 
+    hideLoadingPage() {
+        let loadingElem = document.getElementById('loading');
+        loadingElem.style = 'display: none;';
+        loadingElem.getElementsByTagName('div')[0].style = 'animation-play-state: paused;';
+        document.getElementsByTagName('main')[0].style = 'display: inline';
+    }
+
+    displayCities() {
+
+        document.getElementById('addLocation').className = ';'
+        let navUl = this.document.getElementById('navCities');
+        let cityData, li, onTouchOrClick;
+
+        for(const city of cache.cities){
+            
+            cityData = apiHandler.getCurrentForCity(city);
+
+            li = this.document.createElement('li');
+            li.innerHTML = cityData.name;
+            li.setAttribute('cityId', cityData.id);
+
+            if(currentCity == city)
+            li.setAttribute('id', 'selectedCity');
+
+            onTouchOrClick = function(){
+            currentCity = this.getAttribute('cityId');
+            document.getElementById('selectedCity').removeAttribute('id');
+            this.setAttribute('id', 'selectedCity');
+            updateUi(true);
+            };
+
+            if(DEBUG)
+            li.onclick = onTouchOrClick;
+            else
+            li.ontouchend = onTouchOrClick; // webview, so bind touch event
+
+            navUl.appendChild(li);
+        }
+    }
+
+    updateUi(force = false){
+        displayCurrentWeather(force);
+        displayForecast5Days(force);
+        displayForecast3HourInterval(force);
+    }
+
     chartOption_forecast5Day = [
         {
             label: 'Min',
@@ -423,4 +492,39 @@ class DataVirtualizer{
             fill: true
         }
     ];
+
+    modifyStdClasses(){
+        Date.prototype.toString = function(){
+            return this.getHours() +':' + this.getMinutes() + ':' + this.getSeconds() + ' ' + this.getDate()+'.'+this.getMonth()+'.'+this.getFullYear();
+        };
+        
+        Date.prototype.toTimeString = function(){
+            let hours = this.getHours(), minutes = this.getMinutes();
+            hours = hours < 10 ? ('0'+hours) : hours;
+            minutes = minutes < 10 ? ('0'+minutes) : minutes;
+            return hours +':' + minutes;
+        };
+        
+        Date.prototype.toDayAndTimeString = function () {
+            return this.toGermanDayShort()+' '+this.toTimeString();
+        }
+        
+        Date.prototype.toGermanDayShort = function (useToday = false) {
+        
+            if(useToday && this.getDay() == new Date().getDay()){ //todo: check also date!!
+                return 'Heute';
+            }
+            
+            switch(this.getDay()){
+                case 0: return 'Son';
+                case 1: return 'Mon';
+                case 2: return 'Die';
+                case 3: return 'Mit';
+                case 4: return 'Don';
+                case 5: return 'Fre';
+                case 6: return 'Sam';
+                default: return 'undefined';
+            }
+        };
+    }
 }
