@@ -13,7 +13,7 @@ class Dom{
 
     update(){
         this.displayCurrentWeather();
-        this.displayForecast5Days();
+        this.displayDailyForecast();
     }
 
     dataReady(){
@@ -42,16 +42,19 @@ class Dom{
         document.getElementById('time').innerText = calculationTime.toTimeString();
     }
 
-    displayForecast5Days(data, force = false){ //todo: rename. no more 5 days. 7!
+    displayDailyForecast(data, force = false){ //todo: rename. no more 5 days. 7!
         if(!this.dataReady()) return;
 
         let daily = cache.cities[this.page].daily;
         let trElements = 
-            document.getElementById('forecast5Days')
+            document.getElementById('dailyForecast')
             .getElementsByTagName('tbody')[0].getElementsByTagName('tr');
         let i = 0;
         let date = undefined;
         let run = 0;
+        // 'clone' object:
+        let chartData = JSON.parse(JSON.stringify(this.chartOption_forecastDaily));
+        let chartLabels = [];
 
         for(const day of daily){
             
@@ -60,69 +63,60 @@ class Dom{
             date = new Date(day.dt*1000);
             console.log(day);
 
-            trElements[0]
-                .getElementsByClassName('day')[i]
-                .innerText = date.toGermanDayShort(true);
-
-            
-            trElements[1]
-                .getElementsByTagName('td')[i]
-                .getElementsByTagName('img')[0]
-                .src = 'icons/'+day.weather[0].icon+'d.png';
-
-            trElements[2]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('maxTemp')[0]
-                .innerText = Math.round(day.temp.max) + '°';
-
-                trElements[3]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('avgTemp')[0] //todo: this not the avg temp!
-                .innerText = Math.round(day.temp.day) + '°';
-
-
-            trElements[4]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('minTemp')[0]
-                .innerText = Math.round(day.temp.min) + '°';
-
-            trElements[5]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('humidity')[0]
-                .innerText = day.humidity + '%';
-
-            //todo: display more information like uv-index
-
+            this.displayDailyForecastTable(trElements, day, i, date);
+            this.collectDataForDailyForecastChart(chartData, day);
+            chartLabels.push(date.toGermanDayShort(true));
             i++;
-            
         }
+
+        this.createDailyForecastChart(chartLabels, chartData)
     }
 
-    
+    /**
+     * @param {HTMLCollectionOf<HTMLTableRowElement>} trElements 
+     * @param {object} day
+     * @param {number} i
+     */
+    displayDailyForecastTable(trElements, day, i, date){
 
-    displayForecast5Days_chart (data){
-        return;
-        
-        let days, i = 0, labels = [], datasets;
+        //todo: display more information like uv-index
+        trElements[0]
+            .getElementsByClassName('day')[i]
+            .innerText = date.toGermanDayShort(true);
 
-        // 'clone' object:
-        datasets = JSON.parse(JSON.stringify(this.chartOption_forecast5Day));
+        trElements[1]
+            .getElementsByTagName('td')[i]
+            .getElementsByTagName('img')[0]
+            .src = 'icons/'+day.weather[0].icon+'d.png';
 
-        days = this.calcAvgTempPerDay(data);
+        trElements[2]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('maxTemp')[0]
+            .innerText = Math.round(day.temp.max) + '°';
 
+        trElements[3]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('avgTemp')[0] //todo: this not the avg temp!
+            .innerText = this.calcAvgTemp(day.temp) + '°';
 
-        for(i = 0; i < days.length; i++){
-            datasets[0].data.push(days[i].temp_min);
-            datasets[1].data.push(days[i].temp);
-            datasets[2].data.push(days[i].temp_max); 
-            labels.push(days[i].dayString);
-        }
+        trElements[4]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('minTemp')[0]
+            .innerText = Math.round(day.temp.min) + '°';
+
+        trElements[5]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('humidity')[0]
+            .innerText = day.humidity + '%';
+    }
+
+    createDailyForecastChart(chartLabels, chartData){
 
         var chart = new Chart(this.ctx5daysForecast,{
             type: 'line',
             data: {
-                labels: labels,
-                datasets: datasets
+                labels: chartLabels,
+                datasets: chartData
             },
             options:{
                 title: {
@@ -141,104 +135,21 @@ class Dom{
         chart.canvas.parentNode.style.height = '300px';
     }
 
-    displayForecast5Days_table (data){
+    /**
+     * @param {object} datasets 
+     * @param {object} day 
+     */
+    collectDataForDailyForecastChart (datasets, day){
+
+        datasets[0].data.push(day.temp.min);
+        datasets[1].data.push(this.calcAvgTemp(day.temp));
+        datasets[2].data.push(day.temp.max); 
 
         return;
-        let item, time, dIndex, wIndex, days = [], today = new Date(), avgWeather;
+    }
 
-        //count the weather types per day
-        for(item = 0; item < data.list.length; item++){
-            time = new Date(data.list[item].dt * 1000);
-
-            dIndex = days.findDayIndex(time);
-
-            if(dIndex == -1){
-                days.push({
-                    day: time.getDay(),
-                    time: time,
-                    weathers: [],
-                    avgWeather: '',
-                    avgIcon: ''
-                });
-                dIndex = days.length - 1;
-            }
-
-            wIndex = days[dIndex].weathers.findWeatherIndex(data.list[item].weather[0].main);
-            
-            if(wIndex == -1){
-                days[dIndex].weathers.push(
-                    {
-                        main: '',
-                        description: '',
-                        icon: '',
-                        number: 0
-                    }
-                );
-                wIndex = days[dIndex].weathers.length - 1;
-                days[dIndex].weathers[wIndex].main = data.list[item].weather[0].main;
-                days[dIndex].weathers[wIndex].description = data.list[item].weather[0].description;
-                days[dIndex].weathers[wIndex].icon = parseInt(data.list[item].weather[0].icon);
-            }
-
-            days[dIndex].weathers[wIndex].number++;
-        }
-
-        //get the weather with the highest count and display the icon for it:)
-        for (const day of days) {
-            avgWeather = 0;
-            for (const weather of day.weathers) {
-                if(avgWeather < weather.number){
-                    avgWeather = weather.number;
-                    day.avgIcon = weather.icon;
-                    day.avgWeather = weather.main;
-                }
-            }
-        }
-
-        let trElements = document.getElementById('forecast5Days')
-            .getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-        let i = 0;
-
-        for (const day of days) {
-
-            trElements[0]
-                .getElementsByClassName('day')[i+1]
-                .innerText = day.time.toGermanDayShort(true);
-
-            trElements[1]
-                .getElementsByTagName('td')[i]
-                .getElementsByTagName('img')[0]
-                .src = 'icons/'+day.avgIcon+'d.png';
-            i++;
-        }
-
-        days = this.calcAvgTempPerDay(data);
-        i = 0;
-
-        for (const day of days) {
-            trElements[2]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('maxTemp')[0]
-                .innerText = Math.round(day.temp_max) + '°';
-
-            trElements[3]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('avgTemp')[0]
-                .innerText = Math.round(day.temp) + '°';
-
-            trElements[4]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('minTemp')[0]
-                .innerText = Math.round(day.temp_min) + '°';
-    
-
-            trElements[5]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('humidity')[0]
-                .innerText = Math.round(day.humidity) + '%';
-            i++;
-        }
-
+    calcAvgTemp(temp){
+        return Math.round((temp.day + temp.morn + temp.eve + temp.night) / 4);
     }
 
     displayForecast3HourInterval(data, force = false){
@@ -466,7 +377,7 @@ class Dom{
         displayForecast3HourInterval(force);
     }
 
-    chartOption_forecast5Day = [
+    chartOption_forecastDaily = [
         {
             label: 'Min',
             data: [],
