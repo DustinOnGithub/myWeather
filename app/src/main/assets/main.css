@@ -81,7 +81,7 @@ nav > ul > li {
     display: inline-block;
 }
 
-#forecast3HourIntervalHolder{
+#hourlyForecastHolder{
     overflow: scroll;
     width: calc(100% - 9px);
 }
@@ -97,52 +97,56 @@ nav > ul > li {
     margin-bottom: 10px;
 }
 
-#forecast5Days g.ct-series-a > .ct-line{
+#dailyForecast g.ct-series-a > .ct-line{
     stroke: gray;
 }
 
-#forecast5Days g.ct-series-a > .ct-point{
+#dailyForecast g.ct-series-a > .ct-point{
     stroke: gray;
 }
 
-#forecast5Days g.ct-series-a > .ct-area{
+#dailyForecast g.ct-series-a > .ct-area{
     fill: gray;
 }
 
-#forecast5Days g.ct-series-b > .ct-line{
+#dailyForecast g.ct-series-b > .ct-line{
     stroke: red;
 }
 
-#forecast5Days g.ct-series-b > .ct-point{
+#dailyForecast g.ct-series-b > .ct-point{
     stroke: red;
 }
 
-#forecast5Days g.ct-series-b > .ct-area{
+#dailyForecast g.ct-series-b > .ct-area{
     fill: red;
 }
 
-#forecast5Days g.ct-series-c > .ct-line{
+#dailyForecast g.ct-series-c > .ct-line{
     stroke: blue;
 }
 
-#forecast5Days g.ct-series-c > .ct-point{
+#dailyForecast g.ct-series-c > .ct-point{
     stroke: blue;
 }
 
-#forecast5Days g.ct-series-c > .ct-area{
+#dailyForecast g.ct-series-c > .ct-area{
     fill: blue;
 }
 
-#forecast5Days table{
+#dailyForecast table{
     width: 100%;
     text-align: center;
 }
 
-#forecast5Days img{
+#dailyForecast img{
     width: 100%;
 }
 
-#forecast3HourInterval span{
+.feelTemp{
+    color: #2aff2a;
+}
+
+#hourlyForecast span{
     text-align: center;
     display: block;
 } 
@@ -163,7 +167,7 @@ nav > ul > li {
     margin-bottom: 37px;
 }
 
-#forecast5Days > table:nth-child(3) {
+#dailyForecast > table:nth-child(3) {
     border-top: solid white 2px;
 }
 

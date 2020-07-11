@@ -12,7 +12,6 @@ class ApiHandler{
         //todo: alert is not working in the webView
         switch(xHttp.status) {
             case 200:
-
                 try{
                     return JSON.parse(xHttp.response);
                 } catch(e){}

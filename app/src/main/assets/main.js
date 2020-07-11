@@ -27,6 +27,15 @@ window.onload = function(){
     document.getElementById('apiKey').innerText = "Kein API-Key hinterlegt!";
   }
 
+  if("geolocation" in this.navigator) {
+    let locationManager = new LocationManager();
+    locationManager.addLocationEvent();
+  }
+  else{
+    if(DEBUG) console.log("no geolocation!");
+    else      Android.showToast("Standortzugriff ist nicht möglich!");
+  }
+
   let request = apiHandler.oneCall(cache.cities[0]);
 
   //to complicated?
@@ -35,44 +44,16 @@ window.onload = function(){
       setTimeout(waitAndDisplay, 20);
     }else{
       dom.hideLoadingPage();
+      dom.displayCities();
       dom.update();
-      setInterval(() => {dom.update()}, 3000); //i can't pass the function by reference, otherwise 'this' is not accessible in the function itself
+      setInterval(() => {
+        // todo: get current weather of 'current' city. 
+        dom.update()
+      }, 3000); //i can't pass the function by reference, otherwise 'this' is not accessible in the function itself
     }
   }
   
   waitAndDisplay();
-  
-
-  return;
-
-  currentCity = cache.cities[0];
-  if(apiHandler.getCurrentWeather() && apiHandler.getDailyForecast() && apiHandler.getHourlyForecast()){
-
-  if("geolocation" in this.navigator) {
-      let locationManager = new LocationManager();
-      locationManager.addLocationEvent();
-    }
-    else{
-      if(DEBUG) console.log("no geolocation!");
-      else      Android.showToast("Standortzugriff ist nicht möglich!");
-    }
-
-    Dom.displayCities();
-    updateUi();
-    document.getElementsByTagName('main')[0].style = 'display: block';
-    Dom.hideLoadingPage();
-
-    let updateLoop = setInterval(() => {
-      updateUi();
-    }, 5000);
-  }
-  else{
-    let p = document.createElement('p');
-    p.innerText = "No weather data available!";
-    p.style = 'color: red;';
-    document.getElementsByTagName('main')[0].appendChild(p);
-    Dom.hideLoadingPage();
-  }
 }
 
 //-------- kotlin -> js interface:
