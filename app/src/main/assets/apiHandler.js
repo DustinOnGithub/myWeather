@@ -1,4 +1,3 @@
-const UPDATE_INTERVAL = 600000; // 10 minutes, recommend
 
 class ApiHandler{
 
@@ -49,6 +48,8 @@ class ApiHandler{
                 city.hourly = response.hourly;
                 city.daily = response.daily;
 
+                city.current.dt *= 1000;
+
                 console.debug(cache);
             }
             else{
@@ -64,6 +65,7 @@ class ApiHandler{
             +"&exclude=minutely"
             +`&appid=${cache.apiKey}`
             +`&units=metric`
+            +'&lang=de'
         );
         xHttp.send();
 

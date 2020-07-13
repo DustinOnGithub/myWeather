@@ -1,24 +1,53 @@
-class Dom{
+const UPDATE_INTERVAL = 600000;// 10 minutes, recommend
 
+class Dom{
+    //todo: graph for hourly forecast
+    //todo: display minutely forecast
     constructor(){
 
         this.modifyStdClasses();
         this.currentCity = false;
         this.page = 0;
+        this.apiHandler = new ApiHandler();
+        this.firstCall = true;
+        this.request = undefined;
 
         this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
         Chart.defaults.global.defaultFontColor = 'white';
         Chart.defaults.global.defaultFontSize = 15;
     }
 
-    update(){
-        if(cache.cities[this.page].current.dt !== false){
-            this.displayCurrentWeather();
-            this.displayDailyForecast();
-            this.displayHourlyForecast();
+    update(self){
+
+        if(self == undefined) self = this;
+
+        if(cache.cities[self.page].current.dt === false
+            || (new Date().getTime() - new Date(cache.cities[self.page].current.dt).getTime()) > UPDATE_INTERVAL)
+        {
+            if(self.request instanceof XMLHttpRequest){
+                if(self.request.readyState != XMLHttpRequest.DONE){
+                    setTimeout(self.update, 20, self);
+                    return;
+                }
+            }else{
+                self.request = this.apiHandler.oneCall(cache.cities[self.page]);
+                setTimeout(self.update, 20, self);
+                return;
+            }
         }
-        else{
-            //handle this (no weather data available yet)
+
+        if(self.request !== undefined){
+            if(self.firstCall){
+                self.hideLoadingPage();
+                self.displayCities();
+                self.firstCall = false;
+            }
+            
+            self.displayCurrentWeather();
+            self.displayDailyForecast();
+            self.displayHourlyForecast();
+            self.request = undefined;
+            setTimeout(self.update, 3000, self);
         }
     }
 
@@ -30,7 +59,7 @@ class Dom{
         if(!this.dataReady()) return;
 
         let  current = cache.cities[this.page].current
-            ,calculationTime = new Date(current.dt * 1000)
+            ,updateTime = new Date(current.dt)
             ,sunsetTime = new Date(current.sunset * 1000)
             ,sunriseTime = new Date(current.sunrise * 1000)
         ;
@@ -45,7 +74,7 @@ class Dom{
         document.getElementById('windDegree').innerText = this.degreeToCompass(current.wind_deg);
         document.getElementById('sunrise').innerText = sunriseTime.toTimeString();
         document.getElementById('sunset').innerText = sunsetTime.toTimeString();
-        document.getElementById('time').innerText = calculationTime.toTimeString();
+        document.getElementById('time').innerText = updateTime.toTimeString();
     }
 
     displayDailyForecast(){
@@ -306,6 +335,14 @@ class Dom{
         let index = 0;
         let self = this;
 
+        onTouchOrClick = function(){
+            self.page = this.getAttribute('page');
+            console.log(self.page);
+            document.getElementById('selectedCity').removeAttribute('id');
+            this.setAttribute('id', 'selectedCity');
+            self.update();
+        };
+
         for(const city of cache.cities){
             
             li = document.createElement('li');
@@ -314,13 +351,6 @@ class Dom{
 
             if(this.page == index)
                 li.setAttribute('id', 'selectedCity');
-
-            onTouchOrClick = function(){
-                self.page = this.getAttribute('page');
-                document.getElementById('selectedCity').removeAttribute('id');
-                this.setAttribute('id', 'selectedCity');
-                self.update();
-            };
 
             if(DEBUG)
                 li.onclick = onTouchOrClick;
