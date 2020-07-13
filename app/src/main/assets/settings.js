@@ -1,5 +1,8 @@
-const settings = 
+const cache = 
 {
-    apiKey: 'yourKey',          // openweathermap api key
-    cities: [2864549, 2864549]  // keys for your cities 
+    apiKey: 'yourKey',
+    cities: [
+        {'name': 'Nürnberg', 'coordinates': [49.45, 11.07], 'current': {'dt':false}, 'hourly': {}, 'daily': {}}
+    ],
+    debug: false //BEFORE COMMIT, SET TO FALSE
 };

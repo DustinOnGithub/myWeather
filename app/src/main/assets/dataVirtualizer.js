@@ -1,108 +1,272 @@
-class DataVirtualizer{
+const UPDATE_INTERVAL = 600000;// 10 minutes, recommend
 
+class Dom{
+    //todo: graph for hourly forecast
+    //todo: display minutely forecast
     constructor(){
-        let i;
-        this.cache = [];
-        
+
+        this.modifyStdClasses();
         this.currentCity = false;
-        for(i = 0; i < settings.cities.length; i++){
-            this.cache.push({
-                city: settings.cities[i],
-                current: {
-                    lastUpdate: false
-                },
-                forecast: {
-                    lastUpdate: false
-                },
-                forecast3HourInterval:{
-                    lastUpdate: false
-                }
-            });
-        }
+        this.page = 0;
+        this.displayedPage = -1;
+        this.apiHandler = new ApiHandler();
+        this.request = undefined;
 
         this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
         Chart.defaults.global.defaultFontColor = 'white';
         Chart.defaults.global.defaultFontSize = 15;
-        
     }
 
-    displayCurrentWeather(data, force = false){
-        let calculationTime, sunsetTime, sunriseTime, cacheIndex;
- 
-        cacheIndex = this.cache.findCacheIndex(data.id);
+    update(self){
 
-        //only update gui if data is also updated
-        if(force ||
-            this.currentCity != data.id ||
-            !this.cache[cacheIndex].current.lastUpdate || this.cache[cacheIndex].current.lastUpdate < data.dt){
+        if(self == undefined) self = this;
 
-            this.currentCity = data.id;
-            this.cache[cacheIndex].current.lastUpdate = data.dt;
+        if(cache.cities[self.page].current.dt === false
+            || (new Date().getTime() - new Date(cache.cities[self.page].current.dt).getTime()) > UPDATE_INTERVAL)
+        {
+            if(self.request instanceof XMLHttpRequest){
+                if(self.request.readyState != XMLHttpRequest.DONE){
+                    setTimeout(self.update, 20, self);
+                    return;
+                }
+            }else{
+                self.displayLoadingPage();
+                self.displayedPage = -1;
+                self.request = this.apiHandler.oneCall(cache.cities[self.page]);
+                setTimeout(self.update, 20, self);
+                return;
+            }
+        }
 
-            calculationTime = new Date(data.dt * 1000);
-            sunsetTime = new Date(data.sys.sunset * 1000);
-            sunriseTime = new Date(data.sys.sunrise * 1000);
+        if(self.displayedPage != self.page){
+            if(self.displayedPage == -1){
+                self.displayCities();
+                self.hideLoadingPage();
+            }
 
-            document.getElementById('currentWeatherImg').src = 'icons/' + data.weather[0].icon+'.png';
+            self.displayCurrentWeather();
+            self.displayDailyForecast();
+            self.displayHourlyForecast();
+            self.request = undefined;
+            self.displayedPage = self.page;
+            setTimeout(self.update, 3000, self);
+        }
+    }
+
+    dataReady(){
+        return cache.cities[this.page].current.dt !== false; //the first api call has not finished
+    }
+
+    displayCurrentWeather(){
+        if(!this.dataReady()) return;
+
+        let  current = cache.cities[this.page].current
+            ,updateTime = new Date(current.dt)
+            ,sunsetTime = new Date(current.sunset * 1000)
+            ,sunriseTime = new Date(current.sunrise * 1000)
+        ;
+
+        document.getElementById('currentWeatherImg').src = 'icons/' + current.weather[0].icon+'.png';
+        document.getElementById('temp').innerText = current.temp + '° C';
+        document.getElementById('feelsLike').innerText = current.feels_like + '° C';
+        document.getElementById('uvi').innerText = current.uvi;
+        document.getElementById('pressure').innerText = current.pressure + " hPa";
+        document.getElementById('humidity').innerText = current.humidity + " %";
+        document.getElementById('windSpeed').innerText = current.wind_speed + ' m/s';
+        document.getElementById('windDegree').innerText = this.degreeToCompass(current.wind_deg);
+        document.getElementById('sunrise').innerText = sunriseTime.toTimeString();
+        document.getElementById('sunset').innerText = sunsetTime.toTimeString();
+        document.getElementById('time').innerText = updateTime.toTimeString();
+    }
+
+    displayDailyForecast(){
+        if(!this.dataReady()) return;
+
+        let run = 0
+            ,i = 0
+            ,date = undefined
+            ,rainAvailable = false
+            ,snowAvailable = false
+            ,chartLabels = []
+            ,chartData = JSON.parse(JSON.stringify(this.chartOption_forecastDaily)) // 'clone' object
+            ,trElements = 
+                document.getElementById('dailyForecast')
+                .getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+        ;
+
+        for(const day of cache.cities[this.page].daily){
             
-            document.getElementById('temp').innerText = data.main.temp + '° C';
-            document.getElementById('tempMax').innerText = data.main.temp_max + '° C';
-            document.getElementById('tempMin').innerText = data.main.temp_min + '° C';
-            document.getElementById('humidity').innerText = data.main.humidity + " %";
-            document.getElementById('windSpeed').innerText = data.wind.speed + ' m/s';
-            document.getElementById('windDegree').innerText = this.degreeToCompass(data.wind.deg);
-            document.getElementById('sunrise').innerText = sunriseTime.toTimeString();
-            document.getElementById('sunset').innerText = sunsetTime.toTimeString();
-            document.getElementById('time').innerText = calculationTime.toTimeString()
+            if(run++ == 0) continue;
+
+            date = new Date(day.dt*1000);
+
+            chartLabels.push(date.toGermanDayShort(true));
+
+            this.displayDailyForecastTable(trElements, day, i, date);
+            this.collectDataForDailyForecastChart(chartData, day);
+
+            if(!rainAvailable && typeof day.rain === 'number') rainAvailable = true;
+            if(!snowAvailable && typeof day.snow === 'number') snowAvailable = true;
+
+            i++;
         }
+
+        if(rainAvailable)
+            document.getElementById('rainTr').classList.remove('hidden');
+        else
+            document.getElementById('rainTr').classList.add('hidden');
+
+        if(snowAvailable)
+            document.getElementById('snowTr').classList.remove('hidden');
+        else
+            document.getElementById('snowTr').classList.add('hidden');
+
+        this.createDailyForecastChart(chartLabels, chartData)
     }
 
-    displayForecastWeather(data){
+    displayHourlyForecast(){
+
+        let trElements, oldElements, timeElem, weatherElem, tempElem, feelTempElem, humidityElem, windSpeedElem, windDegreeElem, 
+            weatherClone, timeClone, tempClone, feelTempClone, humidityClone, windSpeedClone, windDegreeClone, date
+        ;
+
+        trElements = document.getElementById('hourlyForecastHolder')
+        .getElementsByTagName('tr');
+
+        oldElements = document.querySelectorAll("#hourlyForecastHolder td");
+        oldElements.forEach(el => el.remove());
+    
+        timeElem = document.createElement('td');
+        timeElem.className += ' time'
+        timeElem.appendChild(document.createElement('span'));
+
+        weatherElem = document.createElement('td');
+        weatherElem.className += ' weather'
+        weatherElem.appendChild(document.createElement('img'));
+
+        tempElem = document.createElement('td');
+        tempElem.className += ' avgTemp';
+        tempElem.appendChild(document.createElement('span'));
+
+        feelTempElem = document.createElement('td');
+        feelTempElem.className += ' feelTemp';
+        feelTempElem.appendChild(document.createElement('span'));
+
+        humidityElem = document.createElement('td');
+        humidityElem.className += ' humidity';
+        humidityElem.appendChild(document.createElement('span'));
         
-    }
+        windSpeedElem = document.createElement('td');
+        windSpeedElem.className += ' windSpeed';
+        windSpeedElem.appendChild(document.createElement('span'));
 
-    displayForecast5Days(data, force = false){
+        windDegreeElem = document.createElement('td');
+        windDegreeElem.className += ' windDegree';
+        windDegreeElem.appendChild(document.createElement('span'));
 
-        let index = this.cache.findCacheIndex(data.city.id);
+        for(const hour of cache.cities[this.page].hourly){
 
-        //only update gui if data is also updated
-        if(force ||
-            this.currentCity != data.city.id ||
-            !this.cache[index].forecast.lastUpdate || 
-            this.cache[index].forecast.lastUpdate < data.list[0].dt
-        ){
+            date = new Date(hour.dt * 1000);
 
-            this.currentCity = data.city.id;
-            this.cache[index].forecast.lastUpdate = data.list[0].dt;
+            timeClone = timeElem.cloneNode(true);
+            timeClone.getElementsByTagName('span')[0].innerText = date.toDayAndTimeString();
+            trElements[0].appendChild(timeClone);
 
-            console.debug('update forecast gui');
+            weatherClone = weatherElem.cloneNode(true);
+            weatherClone.getElementsByTagName('img')[0].src = 'icons/' + hour.weather[0].icon+'.png';
+            trElements[1].appendChild(weatherClone);
+            
+            tempClone = tempElem.cloneNode(true);
+            tempClone.getElementsByTagName('span')[0].innerText = hour.temp + '°';
+            trElements[2].appendChild(tempClone);
 
-            this.displayForecast5Days_chart(data);
-            this.displayForecast5Days_table(data);
+            feelTempClone = feelTempElem.cloneNode(true);
+            feelTempClone.getElementsByTagName('span')[0].innerText = hour.feels_like + '°';
+            trElements[3].appendChild(feelTempClone);
+
+            humidityClone = humidityElem.cloneNode(true);
+            humidityClone.getElementsByTagName('span')[0].innerText = hour.humidity + '%';
+            trElements[4].appendChild(humidityClone);
+
+            windSpeedClone = windSpeedElem.cloneNode(true);
+            windSpeedClone.getElementsByTagName('span')[0].innerText = hour.wind_speed + 'm/s';
+            trElements[5].appendChild(windSpeedClone);
+
+            windDegreeClone = windDegreeElem.cloneNode(true);
+            windDegreeClone.getElementsByTagName('span')[0].innerText = this.degreeToCompass(hour.wind_deg);
+            trElements[6].appendChild(windDegreeClone);
         }
     }
 
-    displayForecast5Days_chart (data){
-        let days, i = 0, labels = [], datasets;
+    /**
+     * @param {HTMLCollectionOf<HTMLTableRowElement>} trElements 
+     * @param {object} day
+     * @param {number} i
+     */
+    displayDailyForecastTable(trElements, day, i, date){
 
-        // 'clone' object:
-        datasets = JSON.parse(JSON.stringify(this.chartOption_forecast5Day));
+        trElements[0]
+            .getElementsByClassName('day')[i]
+            .innerText = date.toGermanDayShort(true);
 
-        days = this.calcAvgTempPerDay(data);
+        trElements[1]
+            .getElementsByTagName('td')[i]
+            .getElementsByTagName('img')[0]
+            .src = 'icons/'+day.weather[0].icon+'.png';
 
+        trElements[2]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('maxTemp')[0]
+            .innerText = Math.round(day.temp.max) + '°';
 
-        for(i = 0; i < days.length; i++){
-            datasets[0].data.push(days[i].temp_min);
-            datasets[1].data.push(days[i].temp);
-            datasets[2].data.push(days[i].temp_max); 
-            labels.push(days[i].dayString);
-        }
+        trElements[3]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('avgTemp')[0]
+            .innerText = this.calcAvgTemp(day.temp) + '°';
+
+        trElements[4]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('minTemp')[0]
+            .innerText = Math.round(day.temp.min) + '°';
+
+        trElements[5]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('feelTemp')[0]
+            .innerText = this.calcAvgTemp(day.feels_like) + '°';
+
+        trElements[6]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('rain')[0]
+            .innerText = typeof day.rain === 'number' ? (day.rain + ' mm') : "N/A";
+
+        trElements[7]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('snow')[0]
+            .innerText = typeof day.snow === 'number' ? (day.snow + ' mm') : "N/A";
+        
+        trElements[8]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('uvIndex')[0]
+            .innerText = day.uvi;
+
+        trElements[9]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('wind')[0]
+            .innerText = this.degreeToCompass(day.wind_deg) + " " +day.wind_speed + " m/s";
+
+        trElements[10]
+            .getElementsByTagName('td')[i]
+            .getElementsByClassName('humidity')[0]
+            .innerText = day.humidity + '%';
+    }
+
+    createDailyForecastChart(chartLabels, chartData){
 
         var chart = new Chart(this.ctx5daysForecast,{
             type: 'line',
             data: {
-                labels: labels,
-                datasets: datasets
+                labels: chartLabels,
+                datasets: chartData
             },
             options:{
                 title: {
@@ -121,257 +285,20 @@ class DataVirtualizer{
         chart.canvas.parentNode.style.height = '300px';
     }
 
-    displayForecast5Days_table (data){
+    /**
+     * @param {object} datasets 
+     * @param {object} day 
+     */
+    collectDataForDailyForecastChart (datasets, day){
 
-        let item, time, dIndex, wIndex, days = [], today = new Date(), avgWeather;
-
-        //count the weather types per day
-        for(item = 0; item < data.list.length; item++){
-            time = new Date(data.list[item].dt * 1000);
-
-            dIndex = days.findDayIndex(time);
-
-            if(dIndex == -1){
-                days.push({
-                    day: time.getDay(),
-                    time: time,
-                    weathers: [],
-                    avgWeather: '',
-                    avgIcon: ''
-                });
-                dIndex = days.length - 1;
-            }
-
-            wIndex = days[dIndex].weathers.findWeatherIndex(data.list[item].weather[0].main);
-            
-            if(wIndex == -1){
-                days[dIndex].weathers.push(
-                    {
-                        main: '',
-                        description: '',
-                        icon: '',
-                        number: 0
-                    }
-                );
-                wIndex = days[dIndex].weathers.length - 1;
-                days[dIndex].weathers[wIndex].main = data.list[item].weather[0].main;
-                days[dIndex].weathers[wIndex].description = data.list[item].weather[0].description;
-                days[dIndex].weathers[wIndex].icon = parseInt(data.list[item].weather[0].icon);
-            }
-
-            days[dIndex].weathers[wIndex].number++;
-        }
-
-        //get the weather with the highest count and display the icon for it:)
-        for (const day of days) {
-            avgWeather = 0;
-            for (const weather of day.weathers) {
-                if(avgWeather < weather.number){
-                    avgWeather = weather.number;
-                    day.avgIcon = weather.icon;
-                    day.avgWeather = weather.main;
-                }
-            }
-        }
-
-        let trElements = document.getElementById('forecast5Days')
-            .getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-        let i = 0;
-
-        for (const day of days) {
-
-            trElements[0]
-                .getElementsByClassName('day')[i+1]
-                .innerText = day.time.toGermanDayShort(true);
-
-            trElements[1]
-                .getElementsByTagName('td')[i]
-                .getElementsByTagName('img')[0]
-                .src = 'icons/'+day.avgIcon+'d.png';
-            i++;
-        }
-
-        days = this.calcAvgTempPerDay(data);
-        i = 0;
-
-        for (const day of days) {
-            trElements[2]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('maxTemp')[0]
-                .innerText = Math.round(day.temp_max) + '°';
-
-            trElements[3]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('avgTemp')[0]
-                .innerText = Math.round(day.temp) + '°';
-
-            trElements[4]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('minTemp')[0]
-                .innerText = Math.round(day.temp_min) + '°';
-    
-
-            trElements[5]
-                .getElementsByTagName('td')[i]
-                .getElementsByClassName('humidity')[0]
-                .innerText = Math.round(day.humidity) + '%';
-            i++;
-        }
-
+        datasets[0].data.push(day.temp.min);
+        datasets[1].data.push(this.calcAvgTemp(day.temp));
+        datasets[2].data.push(this.calcAvgTemp(day.feels_like));
+        datasets[3].data.push(day.temp.max); 
     }
 
-    displayForecast3HourInterval(data, force = false){
-        console.debug(data);
-        let index = this.cache.findCacheIndex(data.city.id);
-
-        if(!force &&
-            this.currentCity == data.city.id &&
-            this.cache[index].forecast3HourInterval.lastUpdate && 
-            this.cache[index].forecast3HourInterval.lastUpdate >= data.list[0].dt
-        )
-        {
-            return;
-        }
-
-        this.currentCity = data.city.id;
-        this.cache[index].forecast3HourInterval.lastUpdate = data.list[0].dt;
-
-        let trElements = document.getElementById('forecast3HourInterval')
-            .getElementsByTagName('tr');
-
-        let oldElements = document.querySelectorAll("#forecast3HourInterval td");
-        oldElements.forEach(el => el.remove());
-    
-        let timeElem = document.createElement('td');
-        timeElem.className += ' time'
-        timeElem.appendChild(document.createElement('span'));
-
-        let weatherElem = document.createElement('td');
-        weatherElem.className += ' weather'
-        weatherElem.appendChild(document.createElement('img'));
-
-        let maxTempElem = document.createElement('td');
-        maxTempElem.className += ' maxTemp';
-        maxTempElem.appendChild(document.createElement('span'));
-
-        let avgTempElem = document.createElement('td');
-        avgTempElem.className += ' avgTemp';
-        avgTempElem.appendChild(document.createElement('span'));
-
-        let feelTempElem = document.createElement('td');
-        feelTempElem.className += ' feelTemp';
-        feelTempElem.appendChild(document.createElement('span'));
-
-        let minTempElem = document.createElement('td');
-        minTempElem.className += ' minTemp';
-        minTempElem.appendChild(document.createElement('span'));
-
-        let humidityElem = document.createElement('td');
-        humidityElem.className += ' humidity';
-        humidityElem.appendChild(document.createElement('span'));
-        
-        let windSpeedElem = document.createElement('td');
-        windSpeedElem.className += ' windSpeed';
-        windSpeedElem.appendChild(document.createElement('span'));
-
-        let windDegreeElem = document.createElement('td');
-        windDegreeElem.className += ' windDegree';
-        windDegreeElem.appendChild(document.createElement('span'));
-
-        let weatherClone, timeClone, maxTempClone, avgTempClone, feelTempClone, minTempClone,
-            humidityClone, windSpeedClone, windDegreeClone, date;
-
-        for(const hour of data.list)
-        {
-            date = new Date(hour.dt * 1000);
-
-            timeClone = timeElem.cloneNode(true);
-            timeClone.getElementsByTagName('span')[0].innerText = date.toDayAndTimeString();
-            trElements[0].appendChild(timeClone);
-
-            weatherClone = weatherElem.cloneNode(true);
-            weatherClone.getElementsByTagName('img')[0].src = 'icons/' + hour.weather[0].icon+'.png';
-            trElements[1].appendChild(weatherClone);
-
-            maxTempClone = maxTempElem.cloneNode(true);
-            maxTempClone.getElementsByTagName('span')[0].innerText = hour.main.temp_max + '°';
-            trElements[2].appendChild(maxTempClone);
-            
-            avgTempClone = avgTempElem.cloneNode(true);
-            avgTempClone.getElementsByTagName('span')[0].innerText = hour.main.temp + '°';
-            trElements[3].appendChild(avgTempClone);
-
-            feelTempClone = feelTempElem.cloneNode(true);
-            feelTempClone.getElementsByTagName('span')[0].innerText = hour.main.feels_like + '°';
-            trElements[4].appendChild(feelTempClone);
-
-            minTempClone = minTempElem.cloneNode(true);
-            minTempClone.getElementsByTagName('span')[0].innerText = hour.main.temp_min + '°';
-            trElements[5].appendChild(minTempClone);
-
-            humidityClone = humidityElem.cloneNode(true);
-            humidityClone.getElementsByTagName('span')[0].innerText = hour.main.humidity + '%';
-            trElements[6].appendChild(humidityClone);
-
-            windSpeedClone = windSpeedElem.cloneNode(true);
-            windSpeedClone.getElementsByTagName('span')[0].innerText = hour.wind.speed + 'm/s';
-            trElements[7].appendChild(windSpeedClone);
-
-            windDegreeClone = windDegreeElem.cloneNode(true);
-            windDegreeClone.getElementsByTagName('span')[0].innerText = this.degreeToCompass(hour.wind.deg);
-            trElements[8].appendChild(windDegreeClone);
-        }
-    }
-
-    calcAvgTempPerDay(data){
-        let item, index, days = [], today = new Date(), time;
-
-        for(item = 0; item < data.list.length; item++){
-            time = new Date(data.list[item].dt * 1000);
-
-            index = days.findIndex((day) => {
-                return day.day == time.getDay();
-            });
-
-            index = days.findDayIndex(time);
-
-            if(index == -1){
-                days.push({
-                    day: time.getDay(),
-                    dayString: time.toGermanDayShort(true),
-                    numberOfData: 0,
-                    temp: 0,
-                    temp_min: 100,
-                    temp_max: 0,
-                    pressure: 0,
-                    sea_level: 0,
-                    grnd_level: 0,
-                    humidity: 0,
-                });
-                index = days.length - 1;
-            }
-            
-            days[index].numberOfData++;
-            days[index].temp += data.list[item].main.temp * 100;
-            if(days[index].temp_min > data.list[item].main.temp_min)
-                days[index].temp_min = data.list[item].main.temp_min;
-            if(days[index].temp_max < data.list[item].main.temp_max)
-                days[index].temp_max = data.list[item].main.temp_max;
-            days[index].pressure += data.list[item].main.pressure;
-            days[index].sea_level += data.list[item].main.sea_level;
-            days[index].grnd_level += data.list[item].main.grnd_level;
-            days[index].humidity += data.list[item].main.humidity;
-        }
-
-        for(index = 0; index < days.length; index++){
-            days[index].temp = (Math.round(days[index].temp / days[index].numberOfData)) / 100;
-            days[index].pressure = days[index].pressure / days[index].numberOfData;
-            days[index].sea_level = days[index].sea_level / days[index].numberOfData
-            days[index].grnd_level = days[index].grnd_level / days[index].numberOfData
-            days[index].humidity = days[index].humidity / days[index].numberOfData
-        }
-
-        return days;
+    calcAvgTemp(temp){
+        return Math.round((temp.day + temp.morn + temp.eve + temp.night) / 4);
     }
 
     degreeToCompass(deg){
@@ -395,7 +322,56 @@ class DataVirtualizer{
             return deg;
     }
 
-    chartOption_forecast5Day = [
+    hideLoadingPage() {
+        this.loadingPage(false);
+    }
+
+    displayLoadingPage(){
+        this.loadingPage(true);
+    }
+
+    loadingPage(display){
+        let loadingElem = document.getElementById('loading');
+        loadingElem.style = `display: ${display == true ? 'inline' : 'none'};`;
+        loadingElem.getElementsByTagName('div')[0].style = `animation-play-state: ${display == true ? 'running' : 'paused'};`;
+        document.getElementsByTagName('main')[0].style = `display: ${display == false ? 'inline' : 'none'}`;
+    }
+
+    displayCities() {
+
+        document.getElementById('addLocation').className = ';'
+        let navUl = document.getElementById('navCities');
+        let cityData, li, onTouchOrClick;
+        let index = 0;
+        let self = this;
+
+        onTouchOrClick = function(){
+            self.page = this.getAttribute('page');
+            document.getElementById('selectedCity').removeAttribute('id');
+            this.setAttribute('id', 'selectedCity');
+            self.update(self);
+        };
+
+        for(const city of cache.cities){
+            
+            li = document.createElement('li');
+            li.innerHTML = city.name;
+            li.setAttribute('page', index);
+
+            if(this.page == index)
+                li.setAttribute('id', 'selectedCity');
+
+            if(DEBUG)
+                li.onclick = onTouchOrClick;
+            else
+                li.ontouchend = onTouchOrClick; // webview, so bind touch event
+
+            navUl.appendChild(li);
+            index++;
+        }
+    }
+
+    chartOption_forecastDaily = [
         {
             label: 'Min',
             data: [],
@@ -405,10 +381,18 @@ class DataVirtualizer{
             fill: true
         },
         {
-            label: 'AVG',
+            label: 'Avg',
             data: [],
             borderColor:'white',
             backgroundColor: '#f5f5f53d',
+            borderWidth: 2,
+            fill: true
+        },
+        {
+            label: 'Gefühlt',
+            data: [],
+            borderColor: '#2aff2a',
+            backgroundColor: "darkgreen",
             borderWidth: 2,
             fill: true
         },
@@ -421,4 +405,39 @@ class DataVirtualizer{
             fill: true
         }
     ];
+
+    modifyStdClasses(){
+        Date.prototype.toString = function(){
+            return this.getHours() +':' + this.getMinutes() + ':' + this.getSeconds() + ' ' + this.getDate()+'.'+this.getMonth()+'.'+this.getFullYear();
+        };
+        
+        Date.prototype.toTimeString = function(){
+            let hours = this.getHours(), minutes = this.getMinutes();
+            hours = hours < 10 ? ('0'+hours) : hours;
+            minutes = minutes < 10 ? ('0'+minutes) : minutes;
+            return hours +':' + minutes;
+        };
+        
+        Date.prototype.toDayAndTimeString = function () {
+            return this.toGermanDayShort()+' '+this.toTimeString();
+        }
+        
+        Date.prototype.toGermanDayShort = function (useToday = false) {
+        
+            if(useToday && this.getDate() == new Date().getDate()){
+                return 'Heute';
+            }
+            
+            switch(this.getDay()){
+                case 0: return 'Son';
+                case 1: return 'Mon';
+                case 2: return 'Die';
+                case 3: return 'Mit';
+                case 4: return 'Don';
+                case 5: return 'Fre';
+                case 6: return 'Sam';
+                default: return 'undefined';
+            }
+        };
+    }
 }

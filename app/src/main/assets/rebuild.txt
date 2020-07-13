@@ -1,0 +1,10 @@
+neu machen:
+die oneCall api nutzen. mit der kann ich für jeden ort gleich aktuelless und vorhersage holen. 
+Allerdings geht die nicht mit der cityId. Das heist ich muss die erst den locationManger bauen. 
+
+LocationManager:
+    - Hinzufügen per aktuellen gps daten
+    - Entfernen
+    - abspeichern des ortes mit lat und log. von nutzer editierbare Name (den von open weather map gelieferten namen)
+
+wenn der fertig ist umbau auf die onecall api
