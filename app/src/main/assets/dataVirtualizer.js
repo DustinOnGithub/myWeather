@@ -30,6 +30,8 @@ class Dom{
                     return;
                 }
             }else{
+                self.displayLoadingPage();
+                self.displayedPage = -1;
                 self.request = this.apiHandler.oneCall(cache.cities[self.page]);
                 setTimeout(self.update, 20, self);
                 return;
@@ -38,10 +40,10 @@ class Dom{
 
         if(self.displayedPage != self.page){
             if(self.displayedPage == -1){
-                self.hideLoadingPage();
                 self.displayCities();
+                self.hideLoadingPage();
             }
-            
+
             self.displayCurrentWeather();
             self.displayDailyForecast();
             self.displayHourlyForecast();
@@ -321,10 +323,18 @@ class Dom{
     }
 
     hideLoadingPage() {
+        this.loadingPage(false);
+    }
+
+    displayLoadingPage(){
+        this.loadingPage(true);
+    }
+
+    loadingPage(display){
         let loadingElem = document.getElementById('loading');
-        loadingElem.style = 'display: none;';
-        loadingElem.getElementsByTagName('div')[0].style = 'animation-play-state: paused;';
-        document.getElementsByTagName('main')[0].style = 'display: inline';
+        loadingElem.style = `display: ${display == true ? 'inline' : 'none'};`;
+        loadingElem.getElementsByTagName('div')[0].style = `animation-play-state: ${display == true ? 'running' : 'paused'};`;
+        document.getElementsByTagName('main')[0].style = `display: ${display == false ? 'inline' : 'none'}`;
     }
 
     displayCities() {
