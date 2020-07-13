@@ -8,8 +8,8 @@ class Dom{
         this.modifyStdClasses();
         this.currentCity = false;
         this.page = 0;
+        this.displayedPage = -1;
         this.apiHandler = new ApiHandler();
-        this.firstCall = true;
         this.request = undefined;
 
         this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
@@ -36,17 +36,17 @@ class Dom{
             }
         }
 
-        if(self.request !== undefined){
-            if(self.firstCall){
+        if(self.displayedPage != self.page){
+            if(self.displayedPage == -1){
                 self.hideLoadingPage();
                 self.displayCities();
-                self.firstCall = false;
             }
             
             self.displayCurrentWeather();
             self.displayDailyForecast();
             self.displayHourlyForecast();
             self.request = undefined;
+            self.displayedPage = self.page;
             setTimeout(self.update, 3000, self);
         }
     }
@@ -337,10 +337,9 @@ class Dom{
 
         onTouchOrClick = function(){
             self.page = this.getAttribute('page');
-            console.log(self.page);
             document.getElementById('selectedCity').removeAttribute('id');
             this.setAttribute('id', 'selectedCity');
-            self.update();
+            self.update(self);
         };
 
         for(const city of cache.cities){
