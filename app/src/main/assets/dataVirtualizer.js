@@ -11,6 +11,7 @@ class Dom{
         this.displayedPage = -1;
         this.apiHandler = new ApiHandler();
         this.request = undefined;
+        this.first = true;
 
         this.ctx5daysForecast = document.getElementById('forecast5DaysCanvas');
         Chart.defaults.global.defaultFontColor = 'white';
@@ -39,11 +40,12 @@ class Dom{
         }
 
         if(self.displayedPage != self.page){
-            if(self.displayedPage == -1){
+            if(self.first == true){
                 self.displayCities();
-                self.hideLoadingPage();
+                self.first = false;
             }
 
+            self.hideLoadingPage();
             self.displayCurrentWeather();
             self.displayDailyForecast();
             self.displayHourlyForecast();
@@ -252,7 +254,7 @@ class Dom{
         trElements[9]
             .getElementsByTagName('td')[i]
             .getElementsByClassName('wind')[0]
-            .innerText = this.degreeToCompass(day.wind_deg) + " " +day.wind_speed + " m/s";
+            .innerText = this.degreeToCompass(day.wind_deg) + " " +day.wind_speed;
 
         trElements[10]
             .getElementsByTagName('td')[i]

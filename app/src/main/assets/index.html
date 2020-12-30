@@ -49,123 +49,126 @@
             <div class="canvasHolder">
                 <canvas id="forecast5DaysCanvas">no canvas supported</canvas>
             </div>
-            <table>
-                <tbody>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td><span class="day">&nbsp;</span></td>
-                        <td><span class="day">&nbsp;</span></td>
-                        <td><span class="day">&nbsp;</span></td>
-                        <td><span class="day">&nbsp;</span></td>
-                        <td><span class="day">&nbsp;</span></td>
-                        <td><span class="day">&nbsp;</span></td>
-                        <td><span class="day">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>Wetter:</th>
-                        <td> <img src="" alt=""> </td>
-                        <td> <img src="" alt=""> </td>
-                        <td> <img src="" alt=""> </td>
-                        <td> <img src="" alt=""> </td>
-                        <td> <img src="" alt=""> </td>
-                        <td> <img src="" alt=""> </td>
-                        <td> <img src="" alt=""> </td>
-                    </tr>
-                    <tr>
-                        <th>Max:</th>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                        <td><span class="maxTemp">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>Avg:</th>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                        <td><span class="avgTemp">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>Min:</th>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                        <td><span class="minTemp">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>Gefühlte:</th>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                        <td><span class="feelTemp">&nbsp;</span></td>
-                    </tr>
-                    <tr id="rainTr" class="hidden">
-                        <th>Regen:</th>
-                        <td><span class="rain">&nbsp;</span></td>
-                        <td><span class="rain">&nbsp;</span></td>
-                        <td><span class="rain">&nbsp;</span></td>
-                        <td><span class="rain">&nbsp;</span></td>
-                        <td><span class="rain">&nbsp;</span></td>
-                        <td><span class="rain">&nbsp;</span></td>
-                        <td><span class="rain">&nbsp;</span></td>
-                    </tr>
-                    <tr id="snowTr" class="hidden">
-                        <th>Schnee:</th>
-                        <td><span class="snow">&nbsp;</span></td>
-                        <td><span class="snow">&nbsp;</span></td>
-                        <td><span class="snow">&nbsp;</span></td>
-                        <td><span class="snow">&nbsp;</span></td>
-                        <td><span class="snow">&nbsp;</span></td>
-                        <td><span class="snow">&nbsp;</span></td>
-                        <td><span class="snow">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>UV Index:</th>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                        <td><span class="uvIndex">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>Wind:</th>
-                        <td><span class="wind">&nbsp;</span></td>
-                        <td><span class="wind">&nbsp;</span></td>
-                        <td><span class="wind">&nbsp;</span></td>
-                        <td><span class="wind">&nbsp;</span></td>
-                        <td><span class="wind">&nbsp;</span></td>
-                        <td><span class="wind">&nbsp;</span></td>
-                        <td><span class="wind">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th>Hum:</th>
-                        <td><span class="humidity">&nbsp;</span></td>
-                        <td><span class="humidity">&nbsp;</span></td>
-                        <td><span class="humidity">&nbsp;</span></td>
-                        <td><span class="humidity">&nbsp;</span></td>
-                        <td><span class="humidity">&nbsp;</span></td>
-                        <td><span class="humidity">&nbsp;</span></td>
-                        <td><span class="humidity">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <th></th>
-                    </tr>
-                </tbody>
-            </table>
+            <div id="divider">&nbsp;</div>
+            <div id="dailyForecastHolder">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <th><span class="day">&nbsp;</span></th>
+                            <th><span class="day">&nbsp;</span></th>
+                            <th><span class="day">&nbsp;</span></th>
+                            <th><span class="day">&nbsp;</span></th>
+                            <th><span class="day">&nbsp;</span></th>
+                            <th><span class="day">&nbsp;</span></th>
+                            <th><span class="day">&nbsp;</span></th>
+                        </tr>
+                        <tr>
+                            <th>Wetter:</th>
+                            <td> <img src="" alt=""> </td>
+                            <td> <img src="" alt=""> </td>
+                            <td> <img src="" alt=""> </td>
+                            <td> <img src="" alt=""> </td>
+                            <td> <img src="" alt=""> </td>
+                            <td> <img src="" alt=""> </td>
+                            <td> <img src="" alt=""> </td>
+                        </tr>
+                        <tr>
+                            <th>Max:</th>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                            <td><span class="maxTemp">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th>Avg:</th>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                            <td><span class="avgTemp">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th>Min:</th>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                            <td><span class="minTemp">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th>Gefühlte:</th>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                            <td><span class="feelTemp">&nbsp;</span></td>
+                        </tr>
+                        <tr id="rainTr" class="hidden">
+                            <th>Regen:</th>
+                            <td><span class="rain">&nbsp;</span></td>
+                            <td><span class="rain">&nbsp;</span></td>
+                            <td><span class="rain">&nbsp;</span></td>
+                            <td><span class="rain">&nbsp;</span></td>
+                            <td><span class="rain">&nbsp;</span></td>
+                            <td><span class="rain">&nbsp;</span></td>
+                            <td><span class="rain">&nbsp;</span></td>
+                        </tr>
+                        <tr id="snowTr" class="hidden">
+                            <th>Schnee:</th>
+                            <td><span class="snow">&nbsp;</span></td>
+                            <td><span class="snow">&nbsp;</span></td>
+                            <td><span class="snow">&nbsp;</span></td>
+                            <td><span class="snow">&nbsp;</span></td>
+                            <td><span class="snow">&nbsp;</span></td>
+                            <td><span class="snow">&nbsp;</span></td>
+                            <td><span class="snow">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th>UV Index:</th>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                            <td><span class="uvIndex">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th>Wind (m/s):</th>
+                            <td><span class="wind">&nbsp;</span></td>
+                            <td><span class="wind">&nbsp;</span></td>
+                            <td><span class="wind">&nbsp;</span></td>
+                            <td><span class="wind">&nbsp;</span></td>
+                            <td><span class="wind">&nbsp;</span></td>
+                            <td><span class="wind">&nbsp;</span></td>
+                            <td><span class="wind">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th>Hum:</th>
+                            <td><span class="humidity">&nbsp;</span></td>
+                            <td><span class="humidity">&nbsp;</span></td>
+                            <td><span class="humidity">&nbsp;</span></td>
+                            <td><span class="humidity">&nbsp;</span></td>
+                            <td><span class="humidity">&nbsp;</span></td>
+                            <td><span class="humidity">&nbsp;</span></td>
+                            <td><span class="humidity">&nbsp;</span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 <!-- todo: do this with grids -->
         <div id="hourlyForecast" class="box">

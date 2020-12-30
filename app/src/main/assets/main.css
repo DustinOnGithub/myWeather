@@ -3,6 +3,7 @@
     margin: 0;
     color: whitesmoke;
     border-color: whitesmoke;
+    font-size: 17px;
 }
 
 html{
@@ -15,7 +16,8 @@ html{
     border: 5px solid #f3f3f3;
     -webkit-animation: spin 1s linear infinite;
     animation: spin 1s linear infinite;
-    border-top: 5px solid #2875a2;
+    border-top: 5px solid #2875a2;    overflow: scroll;
+    width: calc(100% - 9px);
     border-radius: 50%;
     position: absolute;
     width: 70px;
@@ -56,7 +58,7 @@ main{
 nav{
     position: fixed;
     height: 80px;
-    width: 100%;
+    width: 95%;
 }
 
 nav > ul{
@@ -81,13 +83,15 @@ nav > ul > li {
     display: inline-block;
 }
 
-#hourlyForecastHolder{
+#hourlyForecastHolder,
+#dailyForecastHolder {
     overflow: scroll;
     width: calc(100% - 9px);
 }
 
 #selectedCity{
     background: #080279;
+    font-weight: bold;
 }
 
 .box{
@@ -138,8 +142,12 @@ nav > ul > li {
     text-align: center;
 }
 
-#dailyForecast img{
+#divider{
     width: 100%;
+    height: 3px;
+    background-color: whitesmoke;
+    border-radius: 3px;
+    margin: 20px 0
 }
 
 .feelTemp{
@@ -163,16 +171,20 @@ nav > ul > li {
     color: red;
 }
 
-.canvasHolder {
-    margin-bottom: 37px;
-}
-
 #dailyForecast > table:nth-child(3) {
     border-top: solid white 2px;
 }
 
+#dailyForecastHolder .day{
+    font-size: 20px;
+}
+
+td > img{
+    height: 80px;
+}
+
 #currentWeather td{
-    font-size: 17px;
+    font-size: 18px;
 }
 
 #temp{
